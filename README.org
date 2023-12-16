@@ -1,0 +1,78 @@
+# This file:
+#   https://github.com/edrx/show2-elpeg1/
+#        http://anggtwu.net/show2-elpeg1/README.org.html
+#        http://anggtwu.net/show2-elpeg1/README.org
+#               (find-angg "show2-elpeg1/README.org")
+#               (find-angg "show2-elpeg1/")
+# Author: Eduardo Ochs <eduardoochs@gmail.com>
+# 
+# Some eev-isms:
+# (defun c  () (interactive) (eek "C-c C-e h h"))
+# (defun o  () (interactive) (find-angg "show2-elpeg1/README.org"))
+# (defun oo () (interactive) (find-angg "emacsconf2023-repls/README.org"))
+# (defun v  () (interactive) (brg     "~/show2-elpeg1/README.html"))
+# (defun cv () (interactive) (c) (v))
+# 
+# (find-fline "~/usrc/org-git-hooks/build.el")
+# (require 'ox-md)
+# (org-md-export-to-markdown)
+# (org-html-export-to-html)
+#
+# Skel: (find-mygitrepo-links "show2-elpeg1")
+#       (find-efunction 'find-mygitrepo-links)
+#
+# (find-orgnode "Table of Contents")
+#+OPTIONS: toc:nil num:nil
+#+TITLE: REPLs in strange places: Show2, ELpeg1, and friends
+
+# (find-TH "emacsconf2023")
+# (find-TH "eepitch")
+# (find-angg "LUA/ELpeg1.lua")
+# (find-angg "LUA/Show2.lua" "introduction")
+# https://emacsconf.org/2023/talks/
+# http://anggtwu.net/eev-intros/find-show2-intro.html
+# (find-show2-intro)
+
+My [[http://anggtwu.net/emacsconf2023.html][presentation]] at the [[https://emacsconf.org/2023/talks/][EmacsConf2023]] was titled "REPLs in strange
+places: Lua, LaTeX, LPeg, LPegRex, TikZ". Due to personal problems I
+had to present it in a very incomplete form, and it ended up being
+mainly about the design decisions behind some Lua programs - or
+"modules", or "libraries" - that were not finished at the time of the
+conference.
+
+All those programs are built on top of two modules: [[http://anggtwu.net/LUA/Show2.lua.html#introduction][Show2.lua]] and
+[[http://anggtwu.net/LUA/ELpeg1.lua.html][ELpeg1.lua]]. After the conference I wrote this sandboxed tutorial -
+[[http://anggtwu.net/eev-intros/find-show2-intro.html][(find-show2-intro)]] - with [[http://anggtwu.net/eepitch.html][executable]] instructions for installing this
+version of the modules and testing most of their main parts.
+
+Note that at some point I will create versions of Show2 and ELpeg1
+that will be incompatible with the current ones, and that will have
+names like Show3, Show4, ELpeg2, ELpeg3, etc - and the repository with
+these other versions will have other names that are not
+"show2-elpeg1".
+
+#+begin_comment
+ (eepitch-shell)
+ (eepitch-kill)
+ (eepitch-shell)
+cd ~/show2-elpeg1/
+laf
+rm -v *~
+rm -v *.html
+
+# (find-fline   "~/show2-elpeg1/")
+# (magit-status "~/show2-elpeg1/")
+# (find-gitk    "~/show2-elpeg1/")
+#
+#   (s)tage all changes
+#   (c)ommit -> (c)reate
+#   (P)ush -> (p)ushremote
+#   https://github.com/edrx/show2-elpeg1
+#
+#+end_comment
+
+# Local Variables:
+# coding:               utf-8-unix
+# modes:                (org-mode fundamental-mode)
+# org-html-postamble:   nil
+# End:
