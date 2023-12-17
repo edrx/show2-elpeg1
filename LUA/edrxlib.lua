@@ -2058,10 +2058,11 @@ loadlpeg = function ()
 
 -- «loadlpegrex»  (to ".loadlpegrex")
 -- (find-es "lpeg" "lpegrex")
-loadlpegrex = function ()
-    Path.prepend("path",  "~/usrc/lpeglabel/?.lua")
-    Path.prepend("cpath", "~/usrc/lpeglabel/?.so")
-    Path.prepend("path",  "~/usrc/lpegrex/?.lua")
+loadlpegrex = function (dir)
+    dir = dir or "~/usrc"
+    Path.prepend("path",  dir.."/lpeglabel/?.lua")
+    Path.prepend("cpath", dir.."/lpeglabel/?.so")
+    Path.prepend("path",  dir.."/lpegrex/?.lua")
     lpegrex = require 'lpegrex'
   end
 

@@ -32,7 +32,7 @@ LpegRex = Class {
     defs = {__options={}},
     compile = function (lr) return lpegrex.compile(lr.str, lr.defs) end,
     match   = function (lr,subj,init) return lr:compile():match(subj,init) end,
-    pm      = function (lr,subj) return PPP(lr:compile():match(subj)) end,
+    pm      = function (lr,subj) return PP(lr:compile():match(subj)) end,
     pmt     = function (lr,subj) print(trees(lr:compile():match(subj))) end,
   },
 }

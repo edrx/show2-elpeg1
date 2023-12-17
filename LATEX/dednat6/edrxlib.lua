@@ -218,6 +218,7 @@
 -- «.findxxxpdf_parse»		(to "findxxxpdf_parse")
 --
 -- «.repltexthis»		(to "repltexthis")
+-- «.Path.addLUAtopath»		(to "Path.addLUAtopath")
 
 
 -- «compat»  (to ".compat")
@@ -2057,10 +2058,11 @@ loadlpeg = function ()
 
 -- «loadlpegrex»  (to ".loadlpegrex")
 -- (find-es "lpeg" "lpegrex")
-loadlpegrex = function ()
-    Path.prepend("path",  "~/usrc/lpeglabel/?.lua")
-    Path.prepend("cpath", "~/usrc/lpeglabel/?.so")
-    Path.prepend("path",  "~/usrc/lpegrex/?.lua")
+loadlpegrex = function (dir)
+    dir = dir or "~/usrc"
+    Path.prepend("path",  dir.."/lpeglabel/?.lua")
+    Path.prepend("cpath", dir.."/lpeglabel/?.so")
+    Path.prepend("path",  dir.."/lpegrex/?.lua")
     lpegrex = require 'lpegrex'
   end
 
@@ -2709,7 +2711,7 @@ url_split = function (url)
 
 
 -- «Blogme» (to ".Blogme")
--- Obsolete, deleted! Superseded by: (find-anggfile "LUA/BlogMe3.lua")
+-- Deleted! Superseded by: (find-anggfile "LUA/BlogMe3.lua")
 
 -- (find-blogme3 "anggdefs.lua" "basic-words-for-html" "HREF")
 HREF  = function (url, str) return format('<a href="%s">%s</a>', url, str) end
@@ -2717,7 +2719,9 @@ HREF1 = function (url, str) return url and HREF(url, str) or str end
 
 -- «EevIntro» (to ".EevIntro")
 -- (find-es "lua5" "EevIntro")
--- Superseded by: (find-blogme3 "sandwiches.lua")
+-- Superseded by sandwiches:
+--   (find-blogme3file "sandwiches.lua")
+-- TODO: check which .blogme files still use this.
 --
 EevIntro = Class {
   type = "EevIntro",
@@ -2759,10 +2763,12 @@ introhtml = function (stem, sec)
 
 
 -- «ELispH» (to ".ELispH")
+-- Superseded by sandwiches:
+--   (find-blogme3file "sandwiches.lua")
+-- TODO: check which .blogme files still use this.
+--
 -- See: (find-es "lua5" "ELispH")
 --      (find-es "lua5" "ELispH-tests")
--- Superseded by: (find-blogme3 "sandwiches.lua")
---
 -- An ELispH object holds data that can generate a "help url" and
 -- a "target url". For example:
 --
@@ -2804,6 +2810,10 @@ ELispH = Class {
 
 
 -- «ELispHF» (to ".ELispHF")
+-- Superseded by sandwiches:
+--   (find-blogme3file "sandwiches.lua")
+-- TODO: check which .blogme files still use this.
+--
 -- (find-es "lua5" "ELispHF")
 -- (find-es "lua5" "ELispHF-tests")
 -- An ELispHF object holds an "elisp hyperlink function", that when
@@ -2873,6 +2883,10 @@ code_c_m_b = function (c, manual, basedir)
   end
 
 -- «code_video»  (to ".code_video")
+-- Superseded by sandwiches:
+--   (find-blogme3file "sandwiches.lua")
+-- TODO: check which .blogme files still use this.
+--
 -- Run this to make blogme3 process `(code-video "c" "fname")' sexps:
 --   _EHF["code-video"] = ELispHF {f="codevideo"}
 --
@@ -2888,6 +2902,10 @@ code_video = function (c, urlorfnameorhash)
 
 
 -- «getsexp» (to ".getsexp")
+-- Superseded by sandwiches:
+--   (find-blogme3file "sandwiches.lua")
+-- TODO: check which .blogme files still use this.
+--
 -- New version: (find-angg "LUA/SexpAtEol1.lua" "SexpAtEol-tests")
 -- (find-es "lua5" "getsexp")
 -- (find-blogme3 "sexp.lua" "getsexp")
@@ -2991,6 +3009,10 @@ SexpSkel = Class {
 -- «ELispInfo» (to ".ELispInfo")
 -- (find-es "lua5"  "ELispInfo")
 -- (find-blogme3 "sexp.lua" "find-xxxnodes")
+-- Superseded by sandwiches:
+--   (find-blogme3file "sandwiches.lua")
+-- TODO: check which .blogme files still use this.
+--
 ELispInfo = Class {
   type = "ELispInfo",
   new  = function (c, manual, basedir)
@@ -3319,6 +3341,11 @@ unixnewlines = function (bigstr)
     return (bigstr:gsub("\r\n", "\n"):gsub("\r", "\n"))
   end
 
+
+
+-- «Path.addLUAtopath»  (to ".Path.addLUAtopath")
+-- In some tests I need to uncomment this:
+Path.addLUAtopath = function () end
 
 
 

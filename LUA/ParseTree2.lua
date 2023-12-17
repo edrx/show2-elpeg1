@@ -5,10 +5,17 @@
 -- Author: Eduardo Ochs <eduardoochs@gmail.com>
 -- Version: 2023dec16
 --
--- This file implements a way to LaTeX figures like this one
+-- This file implements a way to produce figures like these ones,
 --   https://en.wikipedia.org/wiki/Context-free_grammar
--- using "\underbrace"s. See:
---   (find-SUBSfile "emacsconf2023-repls.lua" "57:25")
+--   http://anggtwu.net/LATEX/2023-2-C2-Tudo.pdf#page=6
+-- using a parser written in ELpeg1,
+--   (find-angg "LUA/ELpeg1.lua")
+-- and a totexer:
+--   (find-angg "LUA/ToTeX1.lua")
+--   (find-angg "LUA/ToTeX1.lua" "totexer")
+-- See:
+--   (find-eev2023replsvideo "57:25")
+--   (find-1stclassvideolsubs "eev2023repls" "57:25")
 
 -- (defun pt2 () (interactive) (find-angg "LUA/ParseTree2.lua"))
 -- (defun pt1 () (interactive) (find-angg "LUA/ParseTree1.lua"))
