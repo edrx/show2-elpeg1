@@ -50,6 +50,7 @@
 
 -- «.Re»	(to "Re")
 -- «.Re-tests»	(to "Re-tests")
+-- «.basic-1»	(to "basic-1")
 
 re = require "re"
 
@@ -111,6 +112,87 @@ rre "{| '(' {:a: [io]:} {:b: [0-9]+:} ')' |} {.*}"  :pm "(i42) 2+3;"
 
 --]==]
 
+
+
+
+-- (find-lpegremanual "")
+--   ( p )          grouping
+--   'string'       literal string
+--   "string"       literal string
+--   [class]        character class
+--   .              any character
+--   {}             position capture
+--   {       p  }   simple capture
+--   {:      p :}   anonymous group capture
+--   {:name: p :}   named group capture
+--   {~      p ~}   substitution capture
+--   {|      p |}   table capture
+--   p ?            optional match
+--   p *            zero or more repetitions
+--   p +            one or more repetitions
+--   p^num          exactly n repetitions
+--   p^+num         at least n repetitions
+--   p^-num         at most n repetitions
+--   p -> 'string'  string capture
+--   p -> "string"  string capture
+--   p -> num       numbered capture
+--
+
+-- «basic-1»  (to ".basic-1")
+--[==[
+ (eepitch-lua51)
+ (eepitch-kill)
+ (eepitch-lua51)
+dofile "Re2.lua"
+string.pm = function (spat,subj) PP(subj:match(spat)) end
+( ".b(.)(d)" )   :pm "abcd"
+("(.b(.)(d))")   :pm "abcd"
+
+rre "   . {.} 'c' {'d'}      "  :pm "abcd"
+rre " { . {.} 'c' {'d'}    } "  :pm "abcd"
+rre "   . {.} 'c' {'d'} {}   "  :pm "abcd"
+rre " { . {.} 'c' {'d'} {} } "  :pm "abcd"
+
+rre " { 'a' { 'b' } } "         :pm "ab"
+
+rre "      'a'          'b'        " :pm "abc"   --> 3
+rre "      'a'          'b'    {}  " :pm "abc"   --> 3
+rre " {}   'a'          'b'    {}  " :pm "abc"   --> 1 3
+rre " {    'a'          'b'     }  " :pm "abc"   --> 'ab'
+rre " {|   'a'          'b'    |}  " :pm "abc"   --> {}
+rre " {| { 'a'          'b'  } |}  " :pm "abc"   --> {1='ab'}
+rre " {| { 'a' } {      'b'  } |}  " :pm "abc"   --> {1='a', 2='b'}
+rre " {| { 'a' } {:     'b' :} |}  " :pm "abc"   --> {1='a', 2='b'}
+rre " {| { 'a' } {:foo: 'b' :} |}  " :pm "abc"   --> {1='a', 'foo'='b'}
+rre "            {:foo: 'a' :}     " :pm "abc"   --> 2
+rre " {|         {:foo: 'a' :} |}  " :pm "abc"   --> {'foo'='a'}
+rre " {          {:foo: 'a' :}  }  " :pm "abc"   --> 'a'
+
+rre " {  { 'a' }        'b'     }  " :pm "abc"   --> 'ab' 'a'
+rre " {  { 'a' } {      'b'  }  }  " :pm "abc"   --> 'ab' 'a' 'b'
+rre " {  { 'a' } {|     'b' |}  }  " :pm "abc"   --> 'ab' 'a' 'b'
+rre " {  { 'a' } {|    {'b'}|}  }  " :pm "abc"   --> 'ab' 'a' {1='b'}
+rre " {  { 'a' } {|    {'b'}|}  }  " :pm "abc"   --> 'ab' 'a' {1='b'}
+
+rre " {| {:foo: 'a'       :}   |}  " :pm "abc"   --> 'a'
+rre " {| {:foo: ''->'bar' :}   |}  " :pm "abc"   --> {'foo'='bar'}
+
+rre   [[ {| { 'a' } {:B: 'b' :}
+            { 'c' } {:D: 'd' :} |} ]] :pm "abcd" --> {1='a', 2='c', 'B'='b', 'D'='d'}
+
+rre " {~ 'a'->'AA' 'b' 'c'->'AA' ~} " :pm "abc"  --> 'AAbCC'
+
+rre " ( ''->'a' ''->'b' ''->'c' ''->'d' ) -> 3 " :pm "abcd" --> 'c'
+
+
+
+--]==]
+
+
+
+-- %name   pattern defs[name] or a pre-defined pattern
+-- name    non terminal
+-- <name>  non terminal
 
 
 

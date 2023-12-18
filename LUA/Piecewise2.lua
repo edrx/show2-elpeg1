@@ -4,6 +4,10 @@
 --          (find-angg "LUA/Piecewise2.lua")
 -- Author: Eduardo Ochs <eduardoochs@gmail.com>
 --
+-- Piecewise functions, version for Pict3.lua.
+-- Supersedes:
+--   (find-angg "LUA/Piecewise1.lua")
+--
 -- (defun e   () (interactive) (find-angg "LUA/Piecewise2.lua"))
 -- (defun o   () (interactive) (find-angg "LUA/Piecewise1.lua"))
 -- (defun pw2 () (interactive) (find-angg "LUA/Piecewise2.lua"))
@@ -12,8 +16,6 @@
 -- (defun p3  () (interactive) (find-angg "LUA/Pict3.lua"))
 -- (defun i2  () (interactive) (find-angg "LUA/Indent2.lua"))
 -- (defun ps1 () (interactive) (find-angg "LUA/PictShow1.lua"))
-
--- Piecewise functions, version for Pict3.lua.
 
 require "Indent2"    -- (find-angg "LUA/Indent2.lua")
                      -- (find-angg "LUA/Indent2.lua" "Pict")
@@ -224,9 +226,7 @@ f = pws:fun()
 -- (c2m221isp 2 "uma-figura")
 -- (c2m221isa   "uma-figura")
 
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -280,6 +280,7 @@ q = (p
 -- (c2m221mt1p 2 "defs-figuras")
 -- (c2m221mt1a   "defs-figuras")
 --[==[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -529,9 +530,7 @@ PwFunction = Class {
 
 -- «PwFunction-tests»  (to ".PwFunction-tests")
 --[[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -563,6 +562,7 @@ pwf  = PwFunction.from(f, seq(0, 2, 0.5), 4)
 = pwf:pw    (0, 4):show()
  (etv)
 
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -601,6 +601,7 @@ p = Pict {
 --      (c2m212intsa   "x^-2")
 -- (find-es "maxima" "TFC2-fails")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -636,6 +637,7 @@ p = Pict {
 -- «PwFunction-intfig»  (to ".PwFunction-intfig")
 -- Superseded by: (to "ChangeVar-test1")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -836,6 +838,7 @@ Riemann = Class {
 
 -- «Riemann-tests»  (to ".Riemann-tests")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -871,6 +874,7 @@ p = Pict {
 = p:show()
  (etv)
 
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -889,6 +893,7 @@ p   = Pict {
 = p:show()
  (etv)
 
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -958,6 +963,7 @@ p = rievexa("para(x)/2", 3, 4)
 
 -- «Riemann-tests-sc»  (to ".Riemann-tests-sc")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -1046,6 +1052,7 @@ TFC1 = Class {
 -- (c2m212tfc1p 5 "exemplo-1")
 -- (c2m212tfc1a   "exemplo-1")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -1082,6 +1089,7 @@ p = Pict {
 = p:show()
  (etv)
 
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -1154,6 +1162,7 @@ Xtoxytoy = Class {
 
 -- «Xtoxytoy-test1»  (to ".Xtoxytoy-test1")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -1178,6 +1187,7 @@ p = Pict { pws:topict(), xtos:topict("v") }
 
 -- «Xtoxytoy-test2»  (to ".Xtoxytoy-test2")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -1207,6 +1217,7 @@ p = Pict { vlines, curve:prethickness("2pt"), labels }
 -- «Xtoxytoy-test3»  (to ".Xtoxytoy-test3")
 -- (find-LATEX "2022-1-C2-somas-3.tex" "imagens-figuras")
 --[==[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -1348,6 +1359,7 @@ ChangeVar = Class {
 -- See: (c2m232ipp 9 "mv-figura")
 --      (c2m232ipa   "mv-figura")
 --[==[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)

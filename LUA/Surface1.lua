@@ -323,9 +323,8 @@ Surface = Class {
 
 -- «Surface-tests»  (to ".Surface-tests")
 --[[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -366,6 +365,7 @@ V3.threeD = "3D"
 = v3():xygrid(7,7)
 = v3():axeswithticks(7,7,2)
 
+-- Broken:
 = sP:segment(v(0,4), v(6,4), nil, 6)
 
 = v3():gat(7,7,2)
@@ -377,10 +377,12 @@ V3.threeD = "3D"
 
 -- «test-piramide»  (to ".test-piramide")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
 dofile "Surface1.lua"
+usepackages.edrx21 = true
 V3.threeD = "2D"
 Pgat3.set772()
 
@@ -429,11 +431,12 @@ p:add(sC:segment(v(2,6), v(6,2), nil, 4))
 --          (c3m211qp 4 "point-of-view")
 --          (c3m211qa   "point-of-view")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
 dofile "Surface1.lua"
-dofile "Surface1.lua"
+usepackages.edrx21 = true
 V3.threeD = "2D"
 Pgat3.set433()
 p = Pict {}
@@ -441,11 +444,13 @@ p = Pict {}
 = p:pgat3():show("", {scale=0.8})
  (etv)
 
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
 -- dofile "Surface1.lua"
 dofile    "ExprDxDy1.lua"
+usepackages.edrx21 = true
 Pgat3.set433()
 V3.threeD = "2D"
 x0,y0 = 3,2
@@ -500,17 +505,6 @@ F = function (x, y) return 10*x + y end
 = srf:diagonals(8, "p")
 = srf:square   (8, "c")
 
-
-p = Pict {
-  }
-
-   \beginpicture(0,-3)(10,6)
-     \pictgray{\expr{v3():xygrid(4,3)          }}
-     \expr          {v3():axeswithticks(4,3,3) }
-     \expr          {#1:diagonals(8, "c")      }
-     \expr          {#1:square   (8, "0")      }
-     \pictgray{\expr{#1:square   (2, "p")      }}
-     \expr          {#1:square   (8, "c")      }
 
 --]]
 

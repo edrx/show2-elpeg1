@@ -205,9 +205,7 @@ printtikzkey  = function (str) printpgfkey("/tikz/"..str) end
 
 -- «getmeaning-tests»  (to ".getmeaning-tests")
 --[==[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "/tmp/Show2.tex")
-       (code-show2 "/tmp/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -229,6 +227,7 @@ cd /tmp/ && REPL=1 lualatex Show2.tex
   printmeaning "newpage"
   printmeaning "@oddfoot"
 
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)

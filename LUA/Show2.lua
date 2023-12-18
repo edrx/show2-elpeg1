@@ -23,10 +23,8 @@
 --    (find-angg "LUA/Numerozinhos1.lua")
 --    (find-angg "LUA/Surface1.lua")
 --    (find-angg "LUA/ExprDxDy1.lua")
---
---      (code-show2 "SHOW2DIR" "/tmp/" "Show2")
--- (find-code-show2 "SHOW2DIR" "/tmp/" "Show2")
--- (find-code-show2 "SHOW2DIR" "~/LUA/" "Show2-outer2")
+-- See:
+--   (find-angg "LUA/Show2-outer.tex")
 
 -- (defun s1 () (interactive) (find-angg "LUA/Show1.lua"))
 -- (defun s2 () (interactive) (find-angg "LUA/Show2.lua"))
@@ -121,9 +119,9 @@
 -- This file implements some tools for defining these ":show()"s, and
 -- it also implements (the Lua side of) a simple way to configure
 -- where the .tex and the .pdf file are to be put. To understand how
--- this configuration is done and how the Emacs side works, run this:
+-- this configuration is done and how the Emacs side works, see:
 --
---    (find-code-show2 "/tmp/Show2.tex")
+--   (find-show2-intro "3. Show2.lua")
 --
 --
 --
@@ -429,8 +427,7 @@ dofile "Show2.lua"
 -- delegated to an elisp function called etv, that is run from a red
 -- star line like this one,
 --
---    (find-code-show2 "/tmp/Show2.tex")
---          (code-show2 "/tmp/Show2.tex")
+--    (show2-use "/tmp/Show2.tex")
 --    (eepitch-lua51)
 --    (eepitch-kill)
 --    (eepitch-lua51)
@@ -454,8 +451,9 @@ dofile "Show2.lua"
 --   |           | resulting PDF |
 --   |___________|_______________|
 --
--- The function (etv) is usually defined by a call to `code-show2'.
---      See: (find-eev "eev-tlinks.el" "code-show2")
+-- The function (etv) is usually defined by a call to `show2-use'.
+--      See: (find-show2-intro "3. Show2.lua")
+--           (find-show2-intro "3. Show2.lua" "show2-use")
 -- Based on: (find-angg "LUA/tikz1.lua" "Show-class")
 --
 -- «Show»  (to ".Show")
@@ -500,8 +498,7 @@ Show = Class {
 
 -- «Show-tests»  (to ".Show-tests")
 --[==[
- (find-code-show2 "/tmp/Show2.tex")
-       (code-show2 "/tmp/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -592,8 +589,7 @@ string.save   = function (body, opts) return StringShow.new():save  (body, opts)
 
 -- «StringShow-tests»  (to ".StringShow-tests")
 --[[
- (find-code-show2 "/tmp/Show2.tex")
-       (code-show2 "/tmp/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)

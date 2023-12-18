@@ -202,9 +202,7 @@ ParseTree = Class {
 -- «ParseTree-tests»  (to ".ParseTree-tests")
 -- (find-angg "LUA/ELpeg1.lua" "totex-tests")
 --[==[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)

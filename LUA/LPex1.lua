@@ -9,6 +9,11 @@
 --   (find-angg "LUA/Capts1.lua")
 -- Uses:
 --   (find-angg "LUA/Und1.lua")
+-- Used by:
+--   (find-LATEX "2023lpegcaptures.tex")
+--   http://anggtwu.net/LATEX/2023lpegcaptures.pdf
+--
+-- (defun e () (interactive) (find-angg "LUA/LPex1.lua"))
 --
 -- «.LPex-grammar»		(to "LPex-grammar")
 -- «.LPex-globals»		(to "LPex-globals")
@@ -120,13 +125,12 @@ LPex = Class {
 
 -- «LPex-tests»  (to ".LPex-tests")
 --[==[
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
 dofile "LPex1.lua"
-D = LPex_parse(LPex_bigstr1)
+D = LPex_parse(LPex_bigstr0)
 = D[3]
 o = LPex.from(D[2])
 = o
@@ -300,6 +304,7 @@ LPexes = Class {
 
 -- «LPexes-tests»  (to ".LPexes-tests")
 --[==[
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -335,11 +340,6 @@ lps:add [=[
  (etv)
 
 --]==]
-
-
-
-
--- (defun e () (interactive) (find-angg "LUA/LPex1.lua"))
 
 
 

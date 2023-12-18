@@ -96,8 +96,9 @@ Numerozinhos = Class {
         p = p:pgat("Npc"):preunitlength(u)
         return p
       end,
-    show0 = function (ns,Opts) return ns:topict(Opts) end,
-    show  = function (ns,...)  return ns:show0(...):show("") end,
+    show00 = function (ns,Opts) return ns:topict(Opts) end,
+    show0  = function (ns,Opts) return ns:topict(Opts) end,
+    show   = function (ns,...)  return ns:show0(...):show("") end,
   },
 }
 
@@ -109,8 +110,7 @@ Numerozinhos = Class {
 -- (c2m221isp 7 "exercicio-2-dica")
 -- (c2m221isa   "exercicio-2-dica")
 --[==[
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -147,6 +147,7 @@ defs = [[ \celllower=3.5pt ]]
 
 -- «Numerozinhos-test-f»  (to ".Numerozinhos-test-f")
 --[==[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -164,8 +165,7 @@ ns = Numerozinhos.fromf(v(1,2), v(3,4), function (x,y) return 10*x+y end)
 
 -- «Numerozinhos-test-spec»  (to ".Numerozinhos-test-spec")
 --[==[
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -191,6 +191,7 @@ ns = Numerozinhos.from(2, 1,
 -- «Numerozinhos-test-minus-0»  (to ".Numerozinhos-test-minus-0")
 -- See: (find-angg "LUA/lua50init.lua" "minus-0")
 --[==[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -220,9 +221,7 @@ Numerozinhos.__index.preprocn = function (ns,n) return      n  end
 -- (c3m221nfp 19 "piramide")
 -- (c3m221nfa    "piramide")
 --[==[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -262,9 +261,7 @@ pyr_spec2 = [[ (1,7)--(7,7)--(7,1)--(1,1)--(1,7)--(7,1)
 -- (c3m221fhp 5 "exercicio-2-fig")
 -- (c3m221fha   "exercicio-2-fig")
 --[==[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -294,6 +291,7 @@ ns = Numerozinhos.from(-4, -4,
 -- (c3m221fha   "exercicio-5")
 -- (c3m221fha   "exercicio-5" "nff \"Dx*Dy\"")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -337,6 +335,7 @@ subst([x=4,y=1], G);
 -- (find-angg "LUA/Pict2e1.lua" "Pict2eVector-tests")
 -- (find-angg "LUA/lua50init.lua" "minus-0")
 --[[
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)

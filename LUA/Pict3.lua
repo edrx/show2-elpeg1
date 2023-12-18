@@ -141,9 +141,7 @@ table.addentries(Pict.__index,
 
 -- «Points2-methods-tests»  (to ".Points2-methods-tests")
 --[[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -458,10 +456,7 @@ ab = Pict {"a", "b"}
 
 -- «Pict-show-tests»  (to ".Pict-show-tests")
 --[[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
-       (code-show2    "/tmp/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)

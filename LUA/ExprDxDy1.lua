@@ -80,9 +80,7 @@ ExprDxDy = Class {
 
 -- «ExprDxDy-tests-2D»  (to ".ExprDxDy-tests-2D")
 --[[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -119,9 +117,7 @@ spec = sg:subst("A--C--I--G--A B--H")
 
 -- «ExprDxDy-tests-3D»  (to ".ExprDxDy-tests-3D")
 --[[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -142,9 +138,7 @@ edd   = ExprDxDy.from("2+Dx^2-Dy^2")
 
 -- «ExprDxDy-tests-2D3D»  (to ".ExprDxDy-tests-2D3D")
 --[[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -169,9 +163,7 @@ pboth = Pict { p2D, "\\quad", p3D }
 
 -- «ExprDxDy-tests-abc»  (to ".ExprDxDy-tests-abc")
 --[==[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)

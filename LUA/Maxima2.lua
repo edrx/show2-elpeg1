@@ -276,9 +276,7 @@ MaximaIOs = Class {
 
 -- «MaximaIOs-tests»  (to ".MaximaIOs-tests")
 --[==[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -544,9 +542,7 @@ dednat6.Maxima2    = true
 -- «show2-tests»  (to ".show2-tests")
 --[==[
  (find-Deps1-cps "Maxima2")
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -573,9 +569,7 @@ dofile "Maxima2.lua"
 -- «show2-tests-head»  (to ".show2-tests-head")
 --[==[
  (find-Deps1-cps "Maxima2")
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "~/LATEX/Show2.tex")
-       (code-show2 "~/LATEX/Show2.tex")
+ (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)

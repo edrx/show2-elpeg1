@@ -73,8 +73,7 @@ funs["sqrt"] = "\\sqrt "
 -- «fmts-tests»  (to ".fmts-tests")
 -- See: (find-angg "LUA/ToTeX1.lua" "totexer-tests")
 --[[
- (find-code-show2 "/tmp/Show2.tex")
-       (code-show2 "/tmp/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -146,8 +145,7 @@ E["(f(x)g(x))' = f'(x)g(x) + f(x)g'(x)"] = eq(E"(f(x)g(x))'", E"f'(x)g(x) + f(x)
 
 -- «E-tests»  (to ".E-tests")
 --[[
- (find-code-show2 "/tmp/Show2.tex")
-       (code-show2 "/tmp/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -175,8 +173,7 @@ defs.matrices = [=[
 
 -- «matrices-tests»  (to ".matrices-tests")
 --[==[
- (find-code-show2 "/tmp/Show2.tex")
-       (code-show2 "/tmp/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
@@ -257,9 +254,7 @@ CME         = function (str) return totex(CME_parse(str)) end
 
 -- «grammar-tests»  (to ".grammar-tests")
 --[==[
- (find-angg "LUA/Show2.lua" "texbody")
- (find-code-show2 "/tmp/Show2.tex")
-       (code-show2 "/tmp/Show2.tex")
+ (show2-use "/tmp/")
  (eepitch-lua51)
  (eepitch-kill)
  (eepitch-lua51)
