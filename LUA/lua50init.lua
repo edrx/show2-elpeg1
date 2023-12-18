@@ -1,4 +1,4 @@
--- THIS file: http://anggtwu.net/LUA/lua50init.lua.html
+-- This file: http://anggtwu.net/LUA/lua50init.lua.html
 --            http://anggtwu.net/LATEX/dednat6/edrxlib.lua.html
 --            http://anggtwu.net/dednat6/dednat6/edrxlib.lua.html
 --            http://anggtwu.net/blogme3/edrxlib.lua.html
