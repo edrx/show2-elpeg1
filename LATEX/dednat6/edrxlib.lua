@@ -22,23 +22,22 @@
 --   (find-sh0 "cp -v ~/LUA/lua50init.lua   ~/dednat6/dednat6/edrxlib.lua")
 --   (find-sh0 "cp -v ~/LUA/lua50init.lua           ~/blogme3/edrxlib.lua")
 --   (find-sh0 "cp -v ~/LUA/lua50init.lua             ~/emlua/edrxlib.lua")
--- Old way: (find-es "emacs" "hard-links")
--- See also: (to "edrxlib")
+-- Old way (fragile): (find-es "emacs" "hard-links")
 --
 -- Author: Eduardo Ochs <eduardoochs@gmail.com>
--- Version: 2023dec11  <- don't trust this date
+-- Version: 20231218  <- don't trust this date
 -- Public domain.
 --
 -- Note: "dednat4.lua" and "dednat6.lua" try to load this at startup,
 -- with 'require "edrxlib"', just after setting the path; if this has
--- already been loaded by LUA_INIT, then the 'require "edrxlib"' is a
--- no-op, because of the "package.loaded.edrxlib = ..." at the end of
--- this file - otherwise it is loaded, probably from the "~/dednat4/"
--- or "~/LATEX/dednat6/" dirs. See this for the details:
+-- already been loaded by LUA_INIT, then the 'require "edrxlib"' will
+-- be a no-op, because of this trick:
+--      (to "package.require")
+--      (to "edrxlib")
+-- otherwise it is loaded, usually from "~/dednat4/" or
+-- "~/LATEX/dednat6/". See also:
 --      (find-dn4 "dednat4.lua" "edrxlib")
 --      (find-dn6 "dednat6.lua" "requires")
---
--- Blogme3 does the same trick:
 --      (find-blogme3 "blogme3.lua" "edrxlib")
 --
 -- This init file used to work both on lua-5.0 and lua-5.1...
@@ -145,8 +144,6 @@
 -- «.NamedFunction»		(to "NamedFunction")
 -- «.envsubst»			(to "envsubst")
 -- «.mytostring-old»		(to "mytostring-old")
--- «.mysortedpairs»		(to "mysortedpairs")
--- «.mytostringk2»		(to "mytostringk2")
 -- «.ee_loadlib»		(to "ee_loadlib")
 -- «.ee_ls»			(to "ee_ls")
 -- «.load_dednat4»		(to "load_dednat4")
@@ -715,14 +712,6 @@ Tos = Class {
     comparekvs = function (kv1, kv2)  -- not a method!
         local k1, k2 = kv1.key,  kv2.key
         return rawtostring_comp(k1, k2)
-        -- local t1, t2 = type(k1), type(k2)
-        -- if t1 == t2 then
-        --   if t1 == "number" then return k1 < k2 end
-        --   if t1 == "string" then return k1 < k2 end
-        --   return rawtostring(k1) < rawtostring(k2)  -- fast
-        -- else
-        --   return t1 < t2   -- numbers before strings before tables, etc
-        -- end
       end,
     --
     -- return a tostring-like function
@@ -740,7 +729,8 @@ Tos = Class {
   },
 }
 
--- Two objects of the class Tos.
+-- Two global objects of the class Tos.
+-- To change how mytostring and PP work, replace them.
 tos0 = Tos({})
 tosp = Tos({t = Tos.__index.tp})
 
@@ -1877,90 +1867,6 @@ envsubst = function (str)
 -- Possible replacements:
 --   (find-dn5 "tos.lua")
 
--- tos_compare_pairs = function (pair1, pair2)
---     local key1,  key2  = pair1.key,  pair2.key
---     local type1, type2 = type(key1), type(key2)
---     if type1 == type2 then
---       if type1 == "number" then return key1 < key2 end
---       if type1 == "string" then return key1 < key2 end
---       return tostring(key1) < tostring(key2)  -- fast
---     else
---       return type1 < type2   -- numbers before strings before tables, etc
---     end
---   end
--- tos_sorted_pairs = function (T)
---     local Tpairs = {}
---     for key,val in pairs(T) do
---       table.insert(Tpairs, {key=key, val=val})
---     end
---     return sorted(Tpairs, tos_compare_pairs)
---   end
--- tos_table_orig = function (T, sep)
---     return "{"..mapconcat(tos_pair, tos_sorted_pairs(T), sep or ", ").."}"
---   end
--- tos_table = tos_table_orig
--- tos = function (o)
---     local t = type(o)
---     if t=="number" then return tostring(o) end
---     if t=="string" then return format("%q", o) end
---     if t=="table"  then return tos_table(o) end
---     return "<"..tostring(o)..">"
---   end
--- tos_key = tos              -- change this to print string keys differently
--- tos_pair = function (pair)
---     return tos_key(pair.key).."="..tos(pair.val)
---   end
--- 
--- mysort = tos_sorted_pairs   -- compatibility
--- mytostring = tos            -- compatibility
--- mytostring_arg = function (T, sep)
---     return mapconcat(tos, T, sep or " ", T.n)
---   end
--- 
--- -- Tools for building extensions
--- tos_good_string_key = function (key)
---     return type(key) == "string" and key:match("^[A-Za-z_][A-Za-z_0-9]*$")
---   end
--- tos_has_tostring = function (o)
---     return getmetatable(T) and getmetatable(T).__tostring
---   end
--- tos_has_eootype = function (o)
---     return type(o) == "table" and getmetatable(o) and getmetatable(o).type
---   end
-
--- mytostringk = mytostring   -- change this to print string keys differently
---
--- mytostring_arg = function (arg, sep)
---     local images = {}
---     for i=1,arg.n do images[i] = mytostring(arg[i]) end
---     return table.concat(images, sep or " ")
---   end
-
--- mytostring_arg({n=4, nil, 22, 33, nil})
--->                   "<nil> 22 33 <nil>"
-
--- -- «mysortedpairs»  (to ".mysortedpairs")
--- -- This is useful in iteractive scripts. The name is bad, I know.
--- -- (find-pilw3m "7.1.html" "simple iterator")
--- mysortedpairs = function (T)
---     local T = mysort(T)
---     local i,n = 0,#T
---     return function ()
---         i = i + 1
---         if i <= n then return T[i].key,T[i].val end
---       end
---   end
--- 
--- -- «mytostringk2»  (to ".mytostringk2")
--- -- Experimental. Usage:
--- --   mytostringk = mytostringk2
--- mytostringk2 = function (o)
---     if type(o) == "string" and o:match("^[A-Za-z_][A-Za-z_0-9]*$") then
---       return o
---     else
---       return mytostring(o)
---     end
---   end
 
 
 -- «ee_loadlib»  (to ".ee_loadlib")
@@ -1979,6 +1885,7 @@ ee_ls = function (dir)
 
 
 -- «load_dednat4»  (to ".load_dednat4")
+-- See: (to "loaddednat6")
 -- (find-angg ".emacs" "eepitch-dednat4")
 -- (find-es    "xypic" "eepitch-dednat4")
 -- (find-dn4 "dednat4.lua" "diag-head")
@@ -3344,7 +3251,17 @@ unixnewlines = function (bigstr)
 
 
 -- «Path.addLUAtopath»  (to ".Path.addLUAtopath")
--- In some tests I need to uncomment this:
+-- Notes about redefining Path.addLUAtopath:
+-- 1) its default is here:
+--    (to "Path")
+--    (to "Path" "addLUAtopath =")
+-- 2) in my machine ~/LUA/ is not in the Lua path
+-- 3) most of the Lua libraries that I wrote are in ~/LUA/
+-- 4) _usually_ things like 'require "Tos2"' only work after Path.addLUAtopath()
+-- 5) _usually_ running Path.addLUAtopath() adds ~/LUA/ to the Lua path
+-- 6) in some tests I need to make Path.addLUAtopath() a no-op
+-- 7) in show2-elpeg1 Path.addLUAtopath() needs to be a no-op
+-- 8) in show2-elpeg1 the redefinition below should be uncommented
 Path.addLUAtopath = function () end
 
 

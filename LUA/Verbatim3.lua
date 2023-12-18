@@ -14,7 +14,7 @@
 -- «.Verbatim-tests»	(to "Verbatim-tests")
 -- «.usepackages»	(to "usepackages")
 -- «.dednat6»		(to "dednat6")
--- «.dedna6-tests»	(to "dedna6-tests")
+-- «.dednat6-tests»	(to "dednat6-tests")
 
 require "Show2"      -- (find-angg "LUA/Show2.lua")
 require "Co1"        -- (find-angg "LUA/Co1.lua" "Co-tests")
@@ -210,7 +210,7 @@ defvbt = function (name)
     Verbatim.from(vbt_lines):defvbt(name):act("o")
   end
 
--- «dedna6-tests»  (to ".dedna6-tests")
+-- «dednat6-tests»  (to ".dednat6-tests")
 --[==[
  (show2-use "$SHOW2LATEXDIR/")
  (eepitch-lua51)
