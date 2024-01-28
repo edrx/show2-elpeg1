@@ -3,11 +3,13 @@
 --   http://anggtwu.net/LUA/ParseTree2.lua
 --          (find-angg "LUA/ParseTree2.lua")
 -- Author: Eduardo Ochs <eduardoochs@gmail.com>
--- Version: 2023dec16
+-- Version: 20240122
 --
 -- This file implements a way to produce figures like these ones,
 --   https://en.wikipedia.org/wiki/Context-free_grammar
 --   http://anggtwu.net/LATEX/2023-2-C2-Tudo.pdf#page=6
+--     (c2m231introp 5 "gramatica-fig")
+--     (c2m231introa   "gramatica-fig")
 -- using a parser written in ELpeg1,
 --   (find-angg "LUA/ELpeg1.lua")
 -- and a totexer:
@@ -36,15 +38,10 @@ require "ToTeX1"       -- (find-angg "LUA/ToTeX1.lua")
 require "Co1"          -- (find-angg "LUA/Co1.lua")
 
 -- «b-and-e»  (to ".b-and-e")
+-- (find-angg "LUA/ELpeg1.lua" "Gram")
 -- (find-angg "LUA/ELpeg1.lua" "Gram" "mt_VAST =")
-Gram.__index.mt_VAST = function (gr)
-    return {
-      __newindex = function (v,name,pat)
-          pat = Cp():Cg"b" * pat * Cp():Cg"e"
-          gr:set(name, Cast(name,pat))
-        end,
-    }
-  end
+-- (find-angg "LUA/ELpeg1.lua" "Gram" "mt_VAST =" "If gr.be is true")
+Gram.__index.be = true
 
 -- «subj»  (to ".subj")
 -- (find-angg "LUA/ELpeg1.lua" "Gram" "cm0 =")
@@ -222,9 +219,15 @@ o10 = pt:underbracify(o9)
 -- = o10
 = o10:show {em=1}
  (etv)
+= Show.log
 
 = defs
 -- (find-angg "LUA/Co1.lua" "Co-tests")
+
+-- Test this:
+= ParseTree_co
+= ParseTree_co:add(" ", "\\textvisiblespace ")
+= ParseTree_co:add(" ", ".")
 
 --]==]
 

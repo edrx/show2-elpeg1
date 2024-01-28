@@ -133,6 +133,18 @@
 --   (find-TH "pict2e-lua" "try-it")
 
 
+require "Dang1"     -- (find-angg "LUA/Dang1.lua")
+-- TODO: Use Dang1, add shows
+
+table.addentries(Dang.__index, {
+    -- See below: (to "StringShow")
+    show00   = function (da,...) return tostring(da):show00(...) end,
+    show0    = function (da,...) return tostring(da):show0 (...) end,
+    show     = function (da,...) return tostring(da):show  (...) end,
+  })
+
+-- TODO: Delete the block below, add tests
+
 
 
 --  ____                    
@@ -148,7 +160,7 @@
 -- More precisely: each object of the class Dang contains a
 -- field .bigstr with a string. When that object is "expanded"
 -- by tostring all the parts between double angle brackets
--- in .bigstr are "expanded" by Dang.eval. The expansion
+-- in .bigstr are "expanded" by :eval(). The expansion
 -- happens every time that the tostring is run, and so the
 -- result of the expansion may change.
 --
@@ -168,29 +180,25 @@
 Dang = Class {
   type = "Dang",
   from = function (bigstr) return Dang {bigstr=bigstr} end,
-  --
-  eval0 = function (s)
-      if s:match("^:")             -- How show we eval s?
-      then return eval(s:sub(2))   --    With ":" -> as ":<expression>"
-      else return expr(s)          -- Without ":" -> as "<statements>"
-      end
-    end,
-  eval = function (s)
-      local r = Dang.eval0(s)
-      if r == nil then return "" end
-      return tostring(r)
-    end,
-  replace = function (bigstr)                      -- replace each <<s>>
-      return (bigstr:gsub("<<(.-)>>", Dang.eval))  -- by Dang.eval(s)
-    end,
-  --
-  peval0 = function (s) PP(Dang.eval0(s)) end,
-  peval  = function (s) PP(Dang.eval (s)) end,
-  preplace = function (bigstr) PP(Dang.replace(bigstr)) end,
-  --
+  __call = function (da,...) return da:tostring(...) end,
   __tostring = function (da) return da:tostring() end,
   __index = {
-    tostring = function (da) return Dang.replace(da.bigstr) end,
+    code = function (da,s)
+        if s:match"^::" then return Code.eval(s:sub(3)) end
+        if s:match"^%." then return Code.ve("_ => _."..s:sub(2)) end
+        if s:match"^:"  then return Code.ve(s:sub(2)) end
+        return Code.expr(s)
+      end,
+    eval0 = function (da,s,...) return da:code(s)(...) end,
+    eval  = function (da,s,...) return tostringe(da:eval0(s,...)) end,
+    --
+    pat = "<<(.-)>>",
+    tostring = function (da,...)
+        local args = pack(...)
+        local f = function (s) return da:eval(s, myunpack(args)) end
+        return (da.bigstr:gsub(da.pat, f))
+      end,
+    --
     -- See below: (to "StringShow")
     show00   = function (da,...) return tostring(da):show00(...) end,
     show0    = function (da,...) return tostring(da):show0 (...) end,
@@ -204,36 +212,24 @@ Dang = Class {
  (eepitch-kill)
  (eepitch-lua51)
 dofile "Show2.lua"
-= Dang. eval0 ":return 2+3,'6'"  --> 5 6
-  Dang.peval0 ":return 2+3,'6'"  --> 5 "6"
-= Dang. eval0         "2+3,'6'"  --> 5 6
-  Dang.peval0         "2+3,'6'"  --> 5 "6"
-= Dang. eval          "2+3,'6'"  --> 5
-  Dang.peval          "2+3,'6'"  --> "5"
+da = Dang {}
+= da:code    "2+3"
+= da:code    "2+3"  ()
+= da:eval0  ("2+3")
+= da:eval   ("2+3")
+= da:code   ".foo"
+= da:code   ".foo" ({foo="FOO", bar="BAR"})
+= da:eval0 (".foo", {foo="FOO", bar="BAR"})
+= da:eval  (".foo", {foo="FOO", bar="BAR"})
+= da:code   ":a,b => a+b,a*b"
+= da:code   ":a,b => a+b,a*b" (2, 3)
+= da:eval0 (":a,b => a+b,a*b", 2, 3)
+= da:eval  (":a,b => a+b,a*b", 2, 3)
 
-= Dang. eval    "2+3"            --> 5
-  Dang.peval    "2+3"            --> "5"
-= Dang.replace "a<<2+3>>b"       --> a5b
- Dang.preplace "a<<2+3>>b"       --> "a5b"
-
-    Dang.peval    "c"            --> ""
- Dang.preplace "a<<c>>b"         --> "ab"
-c = "foo"
-    Dang.peval    "c"            --> "foo"
- Dang.preplace "a<<c>>b"         --> "afoob"
-
-=    Dang.from "a<<c>>b"           --> afoob
-  PP(Dang.from "a<<c>>b")          --> {"bigstr"="a<<c>>b"}
-=    Dang.from("a<<c>>b").bigstr   --> a<<c>>b
-  PP(Dang.from("a<<c>>b").bigstr)  --> "a<<c>>b"
-
- Dang.preplace "a<<:>>b"               --> "ab"
- Dang.preplace "a<<:return>>b"         --> "ab"
- Dang.preplace "a<<:return nil>>b"     --> "ab"
- Dang.preplace "a<<:return 4+5>>b"     --> "a9b"
- Dang.preplace "a<<:return 4+5,6>>b"   --> "a9b"
-
- Dang.preplace "a<<:return false>>b"   --> "afalseb"
+= Dang.from "a<<2+3>>b"
+= Dang.from "_<<2+3>>_<<: a,b => a*b   >>_" (4,5)
+= Dang.from "_<<2+3>>_<<. foo          >>_" ({foo="FOO", bar="BAR"})
+= Dang.from "_<<2+3>>_<<:: return true >>_"
 
 --]==]
 

@@ -7,6 +7,9 @@
 -- Public domain.
 --
 -- (defun e () (interactive) (find-angg "LUA/Code.lua"))
+-- Will be superseded by:
+--   (find-angg "LUA/Code2.lua")
+
 
 -- «.Code»		(to "Code")
 -- «.Code-tests»	(to "Code-tests")

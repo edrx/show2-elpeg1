@@ -57,9 +57,10 @@ Co = Class {
     end,
   __tostring = function (co) return tostring(co.T) end,
   __index = {
-    translate = function (co, str) return (str:gsub(".", co.T)) end,
-    add     = function (co, c, transl) co.T[c] = transl; return co end,
-    addbsls = function (co, bsls)
+    pat       = ".",
+    translate = function (co, str) return (str:gsub(co.pat, co.T)) end,
+    add       = function (co, c, transl) co.T[c] = transl; return co end,
+    addbsls   = function (co, bsls)
         for c in bsls:gmatch"." do co:add(c, "\\"..c) end
         return co
       end,

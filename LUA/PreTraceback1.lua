@@ -3,7 +3,7 @@
 --   http://anggtwu.net/LUA/PreTraceback1.lua
 --          (find-angg "LUA/PreTraceback1.lua")
 -- Author: Eduardo Ochs <eduardoochs@gmail.com>
--- Version: 2023nov12
+-- Version: 2024jan24
 --
 -- This file defines three classes: PreTraceback, DGetFrame and
 -- DGetPairs. A pretraceback object is:
@@ -55,12 +55,36 @@ require "PrintFunction1"     -- (find-angg "LUA/PrintFunction1.lua")
 
 
 --  ____   ____      _   ____       _          
--- |  _ \ / ___| ___| |_|  _ \ __ _(_)_ __ ___ 
+-- |  _ \ / ___| ___| |_|  _ \ __ _(_)_ __ ___
 -- | | | | |  _ / _ \ __| |_) / _` | | '__/ __|
 -- | |_| | |_| |  __/ |_|  __/ (_| | | |  \__ \
 -- |____/ \____|\___|\__|_|   \__,_|_|_|  |___/
---                                             
+--
+-- A dgetpairs object is a very low-level thing: a pretraceback is a
+-- table of dgetframe objects, and each dgetframe object has two
+-- dgetpairs objects.
+--
+-- A pretraceback object is a table of stack frames, each represented
+-- as a dgetframe object; each stack frame can have information about
+-- local variables and upvalues; in a dgetframe object the information
+-- about local variables is stored in a dgetpairs object and the
+-- information about its upvalues is stored in another dgetpairs
+-- object.
+--
+-- Each entry in a dgetpairs object is a triple made of an index (an
+-- "i"), a name, and a value. The two main ways of printing these
+-- triples are:
+--
+--   1) dpg:ins(), that prints the "i"s and the names,
+--   2) dpg:invs(), that prints the "i"s, the names, and the values.
+--
+-- Note that: 1) a function or a stack frame can have different local
+-- variables with the same names, and 2) sometimes we want to store
+-- the names of these local variable but not their values... DGetPairs
+-- has to handle all this.
+--
 -- «DGetPairs»  (to ".DGetPairs")
+-- Also here: (find-angg "LUA/lua50init.lua" "DGetPairs")
 
 DGetPairs = Class {
   type = "DGetPairs",
@@ -124,8 +148,17 @@ PPV(dgp)
 -- | | | | |  _ / _ \ __| |_ | '__/ _` | '_ ` _ \ / _ \
 -- | |_| | |_| |  __/ |_|  _|| | | (_| | | | | | |  __/
 -- |____/ \____|\___|\__|_|  |_|  \__,_|_| |_| |_|\___|
+--
+-- A dgetframe object describes a stack frame. In low-level terms, a
+-- dgetframe object contains the result of running a
+-- debug.getinfo(level,"nSluf") on a certain level of the stack, plus
+-- the information on the local variables and upvalues at that level.
+--                                                     
+-- A dgetframe object can also describe the result of running
+-- debug.getinfo(f,"nSluf") on a function f.
 --                                                     
 -- «DGetFrame»  (to ".DGetFrame")
+-- Also here: (find-angg "LUA/lua50init.lua" "DGetFrame")
 
 DGetFrame = Class {
   type    = "DGetFrame",
@@ -219,8 +252,21 @@ dgf = DGetFrame.fromfunction(set1, true, true)
 -- | |_) | '__/ _ \| || '__/ _` |/ __/ _ \ '_ \ / _` |/ __| |/ /
 -- |  __/| | |  __/| || | | (_| | (_|  __/ |_) | (_| | (__|   < 
 -- |_|   |_|  \___||_||_|  \__,_|\___\___|_.__/ \__,_|\___|_|\_\
---                                                              
+--
+-- In Lua the function debug.traceback returns a string:
+--
+--   (find-lua51manual "#pdf-debug.traceback")
+--
+-- A pretraceback object contains the data of that traceback - i.e., a
+-- low-resolution picture of the call stack - before that data is
+-- converted to a string. The default __tostring method of
+-- PreTraceback uses a very compact format in which each stack frame
+-- is printed as a single line, but we can also print stack frames in
+-- more detailed ways, and inspect their local variables and upvalues.
+--
 -- «PreTraceback»  (to ".PreTraceback")
+-- Also here: (find-angg "LUA/lua50init.lua" "PreTraceback")
+-- See:       (find-angg "LUA/lua50init.lua" "pformat")
 
 PreTraceback = Class {
   type = "PreTraceback",
@@ -252,6 +298,9 @@ dofile "PreTraceback1.lua"
 = pt
 = pt[5]:toprintfunction():v()
 = pt[4]:toprintfunction():v()
+= pt[3]:toprintfunction():v()
+= pt[3]:toprintfunction()
+= pt[3]
 
 --]]
 

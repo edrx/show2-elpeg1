@@ -147,7 +147,16 @@ Tos.__index.f = Tos.__index.f1
 = Tos{}:tcols(Tos)
 = Tos{}:tcols(Tos.__index)
 = Tos{}:tcols(Tos.__index, " %-14s %s")
+PP(split)
 
+ (eepitch-lua51)
+ (eepitch-kill)
+ (eepitch-lua51)
+dofile "Tos2.lua"
+tos0 = Tos({})
+tosp = Tos({t = Tos.__index.tp})
+Tos.__index.f = Tos.__index.f1
+PP(split)
 
 
 tos  = Tos {}

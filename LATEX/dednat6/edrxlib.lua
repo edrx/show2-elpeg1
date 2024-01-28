@@ -25,7 +25,7 @@
 -- Old way (fragile): (find-es "emacs" "hard-links")
 --
 -- Author: Eduardo Ochs <eduardoochs@gmail.com>
--- Version: 20231218  <- don't trust this date
+-- Version: 2024jan24  <- don't trust this date
 -- Public domain.
 --
 -- Note: "dednat4.lua" and "dednat6.lua" try to load this at startup,
@@ -53,6 +53,7 @@
 -- «.pack-and-unpack»		(to "pack-and-unpack")
 -- «.printf»			(to "printf")
 -- «.loadstring»		(to "loadstring")
+-- «.table.empty»		(to "table.empty")
 -- «.ee_expand»			(to "ee_expand")
 -- «.ee_dofile»			(to "ee_dofile")
 -- «.readfile»			(to "readfile")
@@ -93,10 +94,16 @@
 -- «.Path»			(to "Path")
 -- «.DednatRequire»		(to "DednatRequire")
 -- «.PrintFunction»		(to "PrintFunction")
--- «.DGetInfo»			(to "DGetInfo")
---   «.DGetInfo-method»		(to "DGetInfo-method")
---   «.DGetInfo-luatb»		(to "DGetInfo-luatb")
--- «.DGetInfos»			(to "DGetInfos")
+--
+-- Deleted:
+--   «.DGetInfo-TODO»		(to "DGetInfo-TODO")
+--   «.DGetInfo»		(to "DGetInfo")
+--   «.DGetInfos»		(to "DGetInfos")
+-- Replaced by:
+-- «.DGetPairs»			(to "DGetPairs")
+-- «.DGetFrame»			(to "DGetFrame")
+-- «.PreTraceback»		(to "PreTraceback")
+--
 -- «.Rect»			(to "Rect")
 --   «.SynTree»			(to "SynTree")
 --   «.DedTree»			(to "DedTree")
@@ -192,23 +199,23 @@
 -- «.string.replace»		(to "string.replace")
 -- «.anggurl-and-angg_url»	(to "anggurl-and-angg_url")
 --
--- «.Sexp»			(to "Sexp")
--- «.youtube_make_url»		(to "youtube_make_url")
--- «.youtube_split»		(to "youtube_split")
--- «.to_youtube_hash»		(to "to_youtube_hash")
--- «.url_split»			(to "url_split")
--- «.Blogme»			(to "Blogme")
---
--- «.EevIntro»			(to "EevIntro")
--- «.ELispH»			(to "ELispH")
--- «.ELispHF»			(to "ELispHF")
--- «.code_video»		(to "code_video")
--- «.getsexp»			(to "getsexp")
--- «.SexpSkel»			(to "SexpSkel")
--- «.ELispInfo»			(to "ELispInfo")
---
--- «.getsexpskel»		(to "getsexpskel")
--- «.SexpLine»			(to "SexpLine")
+-- Moved to:
+-- (find-blogme3 "cruft-jan2024.lua")
+--   «.EevIntro»		(to "EevIntro")
+--   «.youtube_make_url»	(to "youtube_make_url")
+--   «.youtube_split»		(to "youtube_split")
+--   «.getsexp»			(to "getsexp")
+--   «.ELispHF»			(to "ELispHF")
+--   «.SexpSkel»		(to "SexpSkel")
+--   «.ELispH»			(to "ELispH")
+--   «.Sexp»			(to "Sexp")
+--   «.to_youtube_hash»		(to "to_youtube_hash")
+--   «.url_split»		(to "url_split")
+--   «.Blogme»			(to "Blogme")
+--   «.code_video»		(to "code_video")
+--   «.ELispInfo»		(to "ELispInfo")
+--   «.getsexpskel»		(to "getsexpskel")
+--   «.SexpLine»		(to "SexpLine")
 --
 -- «.fsize»			(to "fsize")
 --
@@ -255,6 +262,9 @@ printf = function (...) write(format(...)) end
 -- «loadstring»  (to ".loadstring")
 -- (find-es "lua5" "loadstring")
 loadstring = loadstring or load
+
+-- «table.empty»  (to ".table.empty")
+table.empty = function (T) return next(T) == nil end
 
 -- «ee_expand»  (to ".ee_expand")
 -- (find-eev "eev.el" "ee-expand")
@@ -308,8 +318,14 @@ filecontents0 = function (fname)
 
 -- (find-dn4 "dednat4.lua" "dednat4dir")
 -- (find-dn6 "dednat6.lua" "package.path")
-fnamedirectory    = function (fname) return fname:match"^(.*/)[^/]*$"  end
-fnamenondirectory = function (fname) return fname:match     "([^/]*)$" end
+fnamedirectory     = function (fname) return fname:match"^(.*/)[^/]*$"  end
+fnamenondirectory  = function (fname) return fname:match     "([^/]*)$" end
+fnamesansextension = function (fname)
+    return fname:reverse():gsub("^[^/]*%.", ""):reverse()
+  end
+fnamebase = function (fname)
+    return fnamenondirectory(fnamesansextension(fname))
+  end
 
 ee_shorten = function (fname)
     fname = fname:gsub("^/home/edrx/", "~/")
@@ -627,30 +643,44 @@ sortedkeys = function (A)
 
 -- «Code»  (to ".Code")
 -- The class Code "converts strings to executable code" in nice ways.
--- Commented version: (find-angg "LUA/Code.lua")
+-- Commented version: (find-angg "LUA/Code2.lua")
 -- See: (to "eval-and-L")
 --
 Code = Class {
-  type = "Code",
-  from = function (src) return Code {src=src} end,
-  ve   = function (src) return Code.from(src):setcodeve() end,
-  vc   = function (src) return Code.from(src):setcodevc() end,
-  L    = function (src) return Code.ve(src):f() end,
-  __tostring = function (c) return c.src end,
-  __call     = function (c, ...) return c:f()(...) end,
+  type  = "Code",
+  from  = function (src) return Code{src=src}:parse() end,
+  expr  = function (src) return Code{src=src}:mkbody("_expr") end,
+  eval  = function (src) return Code{src=src}:mkbody("_eval") end,
+  ve    = function (src) return Code.from(src):mkbody("_ve") end,
+  vc    = function (src) return Code.from(src):mkbody("_vc") end,
+  L     = function (src) return Code.ve(src):f() end,
+  __tostring = function (c) return c:tostring() end,
+  __call     = function (c,...) return c:f()(...) end,
   __index = {
-    format    = function (c, fmt) return format(fmt, c:parse2()) end,
-    setcode   = function (c, fmt) c.code = c:format(fmt); return c end,
-    setcodeve = function (c) return c:setcode("local %s=...; return %s") end,
-    setcodevc = function (c) return c:setcode("local %s=...; %s") end, 
-    f         = function (c) return assert(loadstring(c.code)) end,
-    --
-    pat = "^%s*([%w_,]+)%s*[%-=]>(.*)$",
-    parse2 = function (c)
-        local vars,rest = c.src:match(c.pat)
-        if not vars then error("Code.parse2 can't parse: "..c.src) end
-        return vars, rest
+    tostring = function (c)
+        local f = function (k) return format("%8s: %s", k, c[k]) end
+        return mapconcat(f, sortedkeys(c), "\n")
       end,
+    --
+    srcpat = "^%s*([%w_,]+)%s*[%-=]>%s*(.*)$",
+    parse = function (c)
+        local srcvars,srcbody = c.src:match(c.srcpat)
+        if not srcvars then error("Code.parse can't parse: "..c.src) end
+        c.srcvars,c.srcbody = srcvars,srcbody
+        return c
+      end,
+    --
+    _ve     = "local <srcvars> = ...; return <srcbody>",
+    _vc     = "local <srcvars> = ...; <srcbody>",
+    _expr   = "return <src>",
+    _eval   = "<src>",
+    mkbody  = function (c,k) return c:mkbody0(c[k]) end,
+    mkbody0 = function (c,fmt)
+        local f = function (s) return c[s] end
+        c.body = fmt:gsub("<(.-)>", f)
+        return c
+      end,
+    f = function (c) return assert(loadstring(c.body)) end,
   },
 }
 
@@ -990,6 +1020,7 @@ Path = Class {
 -- «DednatRequire»  (to ".DednatRequire")
 -- Used by: (to "loaddednatrequire")
 -- Commented version: (find-angg "LUA/DednatRequire1.lua")
+--
 DednatRequire = {
   alreadyloaded = function (modulename)
       if package.loaded[modulename] then
@@ -1071,190 +1102,150 @@ PrintFunction = Class {
 }
 
 
+-- «DGetInfo-TODO»  (to ".DGetInfo-TODO")
+-- NOTE: the classes DGetInfo and DGetInfos were superseded by the
+-- classes DGetPairs, DGetFrame and PreTraceback, defined below.
+--
 -- «DGetInfo»  (to ".DGetInfo")
 -- Commented version: (find-angg "LUA/DGetInfo1.lua")
--- Idea: running something like
 --
---   dgi = DGetInfo.atlevel(99, "getvalues")
---
--- calls debug.getinfo and debug.getlocal to get a lot of information
--- about the stack frame at level 99, and puts that information in a
--- static object that is easy to inspect. This class is used by the
--- class DGetInfos, defined below.
---
-DGetInfo = Class {
-  type = "DGetInfo",
-  what = "nSluf",
-  new  = function (A) return DGetInfo(A or {}) end,
-  --
-  atlevel = function (lvl, getvalues)
-      local dgi = debug.getinfo(lvl, DGetInfo.what)
-      if not dgi then return end
-      if getvalues then dgi.values = {} end
-      for i=1,1000 do
-	local name,value = debug.getlocal(lvl, i)
-        if not name then break end
-	dgi[i] = name
-        if getvalues then dgi.values[i] = value end
-      end
-      return DGetInfo(dgi)
-    end,
-  fromfunction = function (f)
-      local dgi = debug.getinfo(f, DGetInfo.what)
-      return DGetInfo(dgi)
-    end,
-  --
-  --  
-  __tostring = function (dgi) return dgi:tostring() end,
-  __index = {
-    tostring = function (dgi) return dgi:tb() end,
-    --
-    -- «DGetInfo-method»  (to ".DGetInfo-method")
-    -- method = "fvtb",
-    -- method = "prosodytb",
-    -- (find-angg "LUA/Prosody1.lua" "Prosody")
-    method    = "luatb",
-    tb        = function (dgi) return dgi[dgi.method](dgi) end,
-    tbi       = function (dgi, i) return format("%2d -> %s", i, dgi:tb()) end,
-    prosodytb = function (dgi) return Prosody.traceback1(dgi) end,
-    fvtb      = function (dgi) return dgi:funname().." :: "..dgi:vars() end,
-    --
-    -- «DGetInfo-luatb»  (to ".DGetInfo-luatb")
-    -- See: (find-angg ".emacs" "find-luatb")
-    luatb = function (dgi)
-        if dgi.short_src == "[C]"         then return dgi:luatb_C() end
-        if dgi.what      == "main"        then return dgi:luatb_main() end
-        if dgi.short_src == "(tail call)" then return dgi:luatb_tailcall() end
-        return dgi:luatb_other()
-      end,
-    luatb_tailcall = function (dgi)
-        return "[Lua] tail call"
-      end,
-    luatb_main = function (dgi)
-        return "[Lua] "..dgi.short_src
-             .." line "..dgi.currentline
-      end,
-    luatb_C = function (dgi)
-        return "[ C ] "       ..dgi.namewhat
-              .." C function "..dgi:luatb_name()
-      end,
-    luatb_other0 = function (dgi)
-        return        (dgi:shortsrc() or "")
-               .." "..(dgi:luatb_line1() or "")
-               .." "..(dgi:luatb_line2() or "")
-               .." "..(dgi.namewhat or "")
-               .." "..(dgi.name or "")
-          end,
-    luatb_other = function (dgi)
-        return format('(find-luatb \"%s\")', rtrim(dgi:luatb_other0()))
-      end,
-    luatb_name = function (dgi)
-        return dgi.name and format("%q", dgi.name) or "(unknown name)"
-      end,
-    luatb_line1 = function (dgi) return dgi.linedefined end,
-    luatb_line2 = function (dgi)
-        if dgi.currentline == -1 then return dgi.lastlinedefined end
-        return dgi.currentline
-      end,
-    --
-    shortsrc = function (dgi)
-        return dgi.short_src and ee_shorten(dgi.short_src)
-      end,
-    funname = function (dgi) return dgi.name or "(noname)" end,
-    vars  = function (dgi) return table.concat(dgi, " ") end,
-    varns = function (dgi)
-        local namens = {}
-        for i,name in ipairs(dgi) do namens[name] = i end
-        return namens
-      end,
-    vs = function (dgi)
-        local values = VTableP({})
-        for i,name in ipairs(dgi) do values[name] = dgi.values[i] end
-        return values
-      end,
-    v = function (dgi, name)
-        local n = dgi:varns()[name] or error("Bad var name: "..tostring(name))
-        return dgi.values[n]
-      end,
-    --
-    find_fline = function (dgi, line)
-        local src = dgi:shortsrc()
-        return format("(find-fline \"%s\" %d)", src, line)
-      end,
-    fline = function (dgi)
-        local l0  = dgi.linedefined
-        local l1  = dgi.currentline
-        local l2  = dgi.lastlinedefined
-        return dgi:find_fline(l1)
-      end,
-    --
-    -- 2022jul17:
-    info = function (dgi, tostr)
-        return pformat("spec: %s\nsrc: %s\n%s", dgi, dgi:fline(), dgi:infovalns(tostr))
-      end,
-    infovaln = function (dgi, n, tostr)
-        tostr = tostr or mytostring
-        return format(" %d %q: %s", n, dgi[n], tostr(dgi.values[n]))
-      end,
-    infovalns = function (dgi, tostr)
-        local f = function (i) return dgi:infovaln(i, tostr) end
-        return mapconcat(f, seq(1, #dgi), "\n")
-      end,
-  },
-}
-
-
 -- «DGetInfos»  (to ".DGetInfos")
 -- Commented version:
 --   (find-angg "LUA/DGetInfo1.lua" "DGetInfos")
 --   (find-angg "LUA/DGetInfo1.lua" "DGetInfos-tests")
+
+
+
+
+-- «DGetPairs»  (to ".DGetPairs")
+-- See: (to "DGetFrame")
+-- Commented version:
+--   (find-angg "LUA/PreTraceback1.lua" "DGetPairs")
+--
+DGetPairs = Class {
+  type = "DGetPairs",
+  new = function (storevalues)
+      return DGetPairs {names={}, values=(storevalues and {})}
+    end,
+  __tostring = function (dg) return dg:tostring() end,
+  __index = {
+    n   = function (dgp) return #dgp.names end,
+    seq = function (dgp) return HTable(seq(1,dgp:n())) end,
+    set = function (dgp,i,name,value)
+        if not name then return end
+        dgp.names[i] = name
+        if dgp.values then dgp.values[i] = value end
+        return dgp
+      end,
+    iname = function (dgp,i)
+        return pformat("%d:%s", i, dgp.names[i])
+      end,
+    inamevalue = function (dgp,i)
+        return pformat("%d:%s:%s", i, dgp.names[i], dgp.values[i])
+      end,
+    inames = function (dgp, sep)
+        local f = function (i) return dgp:iname(i) end
+        return mapconcat(f, dgp:seq(), sep or " ")
+      end,
+    inamesvalues = function (dgp, sep)
+        if not dgp.values then return dgp:inames(sep) end
+        local f = function (i) return dgp:inamevalue(i) end
+        return mapconcat(f, dgp:seq(), sep or "\n")
+      end,
+    ins      = function (dgp, sep) return dgp:inames(sep) end,
+    invs     = function (dgp, sep) return dgp:inamesvalues(sep) end,
+    tostring = function (dgp, sep) return dgp:ins(sep) end,
+  },
+}
+
+-- «DGetFrame»  (to ".DGetFrame")
+-- Commented version:
+--   (find-angg "LUA/PreTraceback1.lua" "DGetFrame")
 -- Idea: running something like
 --
---   dgis = DGetInfos.newv()
--- 
--- runs lots of "debug.getinfo()"s and "debug.getlocal"s via DGetInfo,
--- and returns a static structure that can be inspected in a repl,
--- both inside an error handler and post-mortem.
+--   dgf = DGetFrame.atlevel(99, true, true)
 --
-DGetInfos = Class {
-  type = "DGetInfos",
-  new  = function (getvalues) return DGetInfos({}):getinfos(getvalues) end,
-  newv = function () return DGetInfos.new("getvalues") end,
-  __tostring = function (dgis) return dgis:tostring() end,
+-- calls debug.getinfo, debug.getlocal and debug.getupvalue to get a
+-- lot of information about the stack frame at level 99, and puts that
+-- information in a static object that is easy to inspect. This class
+-- is used by the class PreTraceback, defined below, and it stores the
+-- locals and upvalues in objects of the class DGetPairs, defined
+-- above.
+--
+DGetFrame = Class {
+  type    = "DGetFrame",
+  atlevel = function (lvl, storevalues, storeupvalues)
+      local  dg = debug.getinfo(lvl, "nSluf")
+      if not dg then return end
+      dg.locals   = DGetPairs.new(storevalues)
+      dg.upvalues = DGetPairs.new(storeupvalues)
+      for i=1,1000 do
+	local name,value = debug.getlocal(lvl, i)
+        if not dg.locals:set(i,name,value) then break end
+      end
+      return DGetFrame(dg):getupvalues()
+    end,
+  fromfunction = function (f, storevalues, storeupvalues)
+      local dg    = debug.getinfo(f, "nSluf")
+      dg.locals   = DGetPairs.new(storevalues)   -- dummy
+      dg.upvalues = DGetPairs.new(storeupvalues)
+      return DGetFrame(dg):getupvalues()
+    end,
+  getframes = function (storevalues, storeupvalues)
+      local A = {}
+      for i=0,1000 do
+        A[i] = DGetFrame.atlevel(i, storevalues, storeupvalues)
+        if not A[i] then return A end
+        end
+      end,
+  __tostring = function (dgf) return dgf:tostring() end,
   __index = {
-    getinfos = function (dgis, getvalues)
-        dgis.infos = {}
-        for i=0,1000 do
-          dgis[i] = DGetInfo.atlevel(i, getvalues)
-          if not dgis[i] then return dgis end
-        end
+    getupvalues = function (dgf,n)
+        for i=1,(n or dgf.nups) do
+           local name,value = debug.getupvalue(dgf.func, i)
+           if not dgf.upvalues:set(i,name,value) then break end
+         end
+         return dgf
       end,
-    firstsuch = function (dgis, f)
-        for i=0,#dgis do
-          if f(dgis[i], i) then return i end
-        end
+    delpairs = function (dgf)
+        dgf = copy(dgf)
+        dgf.locals   = nil
+        dgf.upvalues = nil
+        return dgf
       end,
-    setbase = function (dgis, f)
-        local z = dgis:firstsuch(f)
-        if not z then error("setbase: not found") end
-        dgis.base = z
-        return dgis
-      end,
-    --
-    seq = function (dgis, a, b, dir)
-        a,b = (a or #dgis),(b or 0)
+    toprintfunction = function (dgf) return PrintFunction(dgf:delpairs()) end,
+    tostring = function (dgf) return tostring(dgf:toprintfunction()) end,
+    pf = function (dgf) return dgf:toprintfunction() end,
+    v  = function (dgf) return dgf:toprintfunction():v() end,
+  },
+}
+
+-- «PreTraceback»  (to ".PreTraceback")
+-- A pretraceback is like a debug.traceback() before it is converted
+-- to a string. Commented version:
+--   (find-angg "LUA/PreTraceback1.lua" "PreTraceback")
+--
+PreTraceback = Class {
+  type = "PreTraceback",
+  new  = function (getvalues, getupvalues)
+      local frames = DGetFrame.getframes(getvalues, getupvalues)
+      return PreTraceback(frames)
+    end,
+  __tostring = function (pt) return pt:tostring() end,
+  __index = {
+    seq = function (pt, a, b, dir)
+        a,b = (a or #pt),(b or 0)
         dir = dir or (a <= b and 1 or -1)
         return seq(a, b, dir)
       end,
-    tostring = function (dgis, a, b, dir)
-        local f = function (i) return dgis[i]:tbi(i) end
-        return mapconcat(f, dgis:seq(a, b, dir), "\n")
+    tostring = function (pt, a, b, dir)
+        local f = function (i) return pformat("%s -> %s", i, pt[i]) end
+        return mapconcat(f, pt:seq(a, b, dir), "\n")
       end,
-    --
-    tb  = function (dgis, a, b, dir) return dgis:tostring(a, b, dir) end,
-    tbn = function (dgis, a, b, dir) return dgis:tostring(a, b, dir) end,
   },
 }
+
+
 
 
 
@@ -2308,7 +2299,7 @@ run_my_repl_now = function ()
   end
 stop_my_repl_now = function ()
     dg = dgis
-    r.STOP = "please"
+    r.STOP = "plz"
   end
 
 -- «Repl2.lua»  (to ".Repl2.lua")
@@ -2320,20 +2311,19 @@ run_repl2_now = function ()
     r:repl()
   end
 stop_repl2_now = function ()
-    r.STOP = "please"
+    r.STOP = "plz"
   end
 
 -- «Repl3.lua»  (to ".Repl3.lua")
 -- (find-angg "LUA/Repl3.lua")
 run_repl3_now = function ()
-    -- Path.prependtopath "~/LUA/?.lua"
     Path.addLUAtopath()
     require "Repl3"
     r = Repl.new()
     r:repl()
   end
 stop_repl3_now = function ()
-    r.STOP = "please"
+    r.STOP = "plz"
   end
 
 -- «mytraceback»  (to ".mytraceback")
@@ -2441,628 +2431,39 @@ meta_find_angg = function (anggdir, suffix, intro_stem)
 
 
 
--- «Sexp» (to ".Sexp")
--- Used here: (find-blogme3 "anggdefs.lua" "Sexp")
-elisp = {}
-elisp["find-angg"] = meta_find_angg("")
-elisp["find-es"]   = meta_find_angg("e/", ".e.html")
 
-elispSPECIAL = {}
+-- «EevIntro»  		(to ".EevIntro")
+-- «youtube_make_url»  	(to ".youtube_make_url")
+-- «youtube_split»  	(to ".youtube_split")
+-- «getsexp»  		(to ".getsexp")
+-- «ELispHF»  		(to ".ELispHF")
+-- «SexpSkel»  		(to ".SexpSkel")
+-- «ELispH»  		(to ".ELispH")
+-- «Sexp»  		(to ".Sexp")
+-- «to_youtube_hash»  	(to ".to_youtube_hash")
+-- «url_split»  	(to ".url_split")
+-- «Blogme»  		(to ".Blogme")
+-- «code_video»  	(to ".code_video")
+-- «ELispInfo»  	(to ".ELispInfo")
+-- «getsexpskel»  	(to ".getsexpskel")
+-- «SexpLine»  		(to ".SexpLine")
 
-Sexp = Class {
-  type    = "Sexp",
-  __index = {
-    getsexp = function (sexp)
-        local line = sexp.line
-        if line:sub(#line) ~= ")" then return end
-        local len = #line
-        local skel = line:gsub("\\.", "__")              -- backslash+c -> __
-        skel = skel:revgsub("\"[^\"]*\"", underlinify)   -- "abc" -> "___"
-        skel = skel:sub(1, len-1):revgsub("%b)(", underlinify)..skel:sub(len)
-        local revsexp = line:reverse():match("^%b)(")
-        if not revsexp then return end
-        sexp.sexp = revsexp:reverse()
-        sexp.pre  = line:sub(1, len-#sexp.sexp)
-        -- sexp.sexpskel = skel:sub(#sexp.pre+1)
-        sexp.midskel = skel:sub(#sexp.pre+2, len-1)
-        sexp.head    = sexp.midskel:match("^%S*")
-        return sexp.head
-      end,
-    getsexpargs = function (sexp)
-        local n = 0
-        sexp.ranges = {}
-        for i,j in sexp.midskel:gmatch("()%S+()") do
-          n = n + 1
-          sexp[n] = sexp.sexp:sub(i+1, j)
-          sexp.ranges[n] = {i+1, j+1}
-        end
-      end,
-    string = function (sexp, n)
-        return sexp[n] and sexp[n]:match '^"(.*)"$'
-      end,
-    --
-    Q = function (text) return text end,
-    hrefto = function (sexp, url)
-        return function (text)
-            return '<a href="'..url..'">'..sexp.Q(text)..'</a>'
-          end
-      end,
-    setrange = function (sexp, a, b, s_or_f)
-          table.insert(sexp.htmlranges, {a, b, s_or_f})
-      end,
-    sethelp = function (sexp, url)
-        local r = sexp.ranges[1]
-        if url then sexp:setrange(r[1], r[2], sexp:hrefto(url)) end
-        -- table.insert(sexp.htmlranges, {r[1], r[2], sexp:hrefto(url)})
-        -- end
-      end,
-    settarget = function (sexp, url)
-        local len = #sexp.sexp
-        if url then sexp:setrange(len-1, len+1, sexp:hrefto(url)) end
-        -- table.insert(sexp.htmlranges, {len-1, len+1, sexp:hrefto(url)})
-        -- end
-      end,
-    tohtml0 = function (sexp)
-        return replaceranges(sexp.sexp, sexp.htmlranges or {}, sexp.Q)
-      end,
-    getsexphtml = function (sexp)
-        sexp.htmlranges = {}
-        if not sexp.head then return end
-        if elispSPECIAL[sexp.head] then    -- for all kinds of special hacks
-          elispSPECIAL[sexp.head](sexp)
-          return
-        end
-        local find_aaa = elisp[sexp.head]
-        if not find_aaa then return end
-        sexp:getsexpargs()
-        sexp.target, sexp.help = find_aaa(sexp:string(2), sexp:string(3))
-        sexp:sethelp(sexp.help)
-        sexp:settarget(sexp.target)
-        sexp.sexphtml = sexp:tohtml0()
-      end,
-    getlinehtml = function (sexp)
-        if sexp:getsexp() then sexp:getsexphtml() end
-        if sexp.sexphtml
-        then sexp.linehtml = sexp.Q(sexp.pre)..sexp.sexphtml
-        else sexp.linehtml = sexp.Q(sexp.line)
-        end
-        return sexp.linehtml
-      end,
-  },
-}
-
--- «youtube_make_url»  (to ".youtube_make_url")
--- (find-es "youtube" "time-syntax")
-youtube_make_url = function (hash, time)
-    return "http://www.youtube.com/watch?v=" .. hash .. youtube_time(time)
-  end
-youtube_time = function (time)
-    if type(time) ~= "string" then return "" end
-    local mm,ss = time:match("^(%d?%d):(%d%d)$")
-    if ss then return "&t="..(mm*60+ss) end
-    local hh,mm,ss = time:match("^(%d?%d):(%d%d):(%d%d)$")
-    if ss then return "&t="..(hh*3600+mm*60+ss) end
-    return ""
-  end
-youtube_time_hhmmss = function (time)
-    if type(time) ~= "string" then return "" end
-    local mm,ss = time:match("^(%d?%d):(%d%d)$")
-    if ss then return format("&t=%sm%ss", mm, ss) end
-    local hh,mm,ss = time:match("^(%d?%d):(%d%d):(%d%d)$")
-    if ss then return format("&t=%sh%sm%ss", hh, mm, ss) end
-    return ""
-  end
-
--- «youtube_split» (to ".youtube_split")
--- I was using this at too many places - including one-shot programs...
--- (find-angg "LUA/youtube-tags.lua")
--- (find-angg "LUA/youtube.lua")
--- (find-blogme3 "youtube.lua")
-youtube_split_url0 = function (li)
-    local a, url, b, title, c = li:match "^(.-)(https?://%S*)(%s*)(.-)(%s*)$"
-    if not url then return end
-    local hash, time
-    for key,value in url:gmatch "[?&](%w*)=([^?&#'()]*)" do
-      if key == "v" then hash = value end
-      if key == "t" then time = value end  -- not being used now
-    end
-    if not hash then return end
-    return a, hash, b, title, c
-  end
-youtube_split_url = function (li)
-    local a, hash, b, title, c = youtube_split_url0(li)
-    if a then return hash, youtube_make_url(hash), title end
-  end
-
--- «to_youtube_hash»  (to ".to_youtube_hash")
-to_youtube_hash = function (str)
-    str = str:gsub("%.%w%w%w$", "")
-    str = str:sub(-11)
-    return str
-  end
-
-
--- «url_split» (to ".url_split")
--- Used here: (find-angg "LUA/redirect.lua")
-url_percent_decode  = function (str)
-    local f = function (hh) return string.char(tonumber(hh, 16)) end
-    return (str:gsub("%%(%x%x)", f))
-  end
-url_query_split = function (query)
-    local Q = {}
-    for key,value in query:gmatch "[?&](%w*)=([^?&#'()]*)" do
-      Q[key] = url_percent_decode(value)
-    end
-    return Q
-  end
---
-url_split_re  = nil
-url_split_re0 = function ()
-    userocks()
-    require "re"     -- (find-es "lua5" "lpeg-re")
-    return re.compile [=[
-        {|       {:scheme: [a-z]+ :} "://"
-                 {:host:   [^/]+  :}
-           ( "/" {:path:   [^?#]* :} ) ?
-           ( "?" {:query:  [^#]*  :} ) ?
-           ( "#" {:anchor: [^#]*  :} ) ?
-        |}
-      ]=]
-  end
-url_split = function (url)
-    url_split_re = url_split_re or url_split_re0()
-    local parts  = url_split_re:match(url)
-    if parts and parts.query then parts.q = url_query_split("?" .. parts.query) end
-    return parts
-  end
-
-
--- «Blogme» (to ".Blogme")
--- Deleted! Superseded by: (find-anggfile "LUA/BlogMe3.lua")
-
--- (find-blogme3 "anggdefs.lua" "basic-words-for-html" "HREF")
-HREF  = function (url, str) return format('<a href="%s">%s</a>', url, str) end
-HREF1 = function (url, str) return url and HREF(url, str) or str end
-
--- «EevIntro» (to ".EevIntro")
--- (find-es "lua5" "EevIntro")
--- Superseded by sandwiches:
---   (find-blogme3file "sandwiches.lua")
--- TODO: check which .blogme files still use this.
---
-EevIntro = Class {
-  type = "EevIntro",
-  from = function (stem, sec)
-      return EevIntro {stem=stem, sec=sec}
-    end,
-  fromshort = function (short)
-      if short:match"#"
-      then return EevIntro.from(short:match"^(.-)#(.*)")
-      else return EevIntro.from(short)
-      end
-    end,
-  fromheadposspec = function (head, posspec)
-      local stem = head:match "^find%-(.*)%-intro$"
-      local sec = posspec and posspec:match "^(%d[%d%.]*)%. "
-      return EevIntro.from(stem, sec)
-    end,
-  fromsexp = function (li)
-      local head, rest = li:match "^%s*%(([!-~]+)(.*)%)%s*$"
-      local posspec = rest:match "^%s+\"(.*)\"$"
-      return EevIntro.fromheadposspec(head, posspec)
-    end,
-  __tostring = function (ei) return mytostring(ei) end,
-  __index = {
-    url = function (ei)
-        return format("eev-intros/find-%s-intro.html%s",
-                      ei.stem, ei.sec and "#"..ei.sec or "")
-      end,
-    short = function (ei)
-        return ei.stem .. (ei.sec and "#"..ei.sec or "")
-      end,
-  },
-}
-
-introhtml = function (stem, sec)
-    return EevIntro.from(stem, sec):url()
-  end
-
-
-
--- «ELispH» (to ".ELispH")
--- Superseded by sandwiches:
---   (find-blogme3file "sandwiches.lua")
--- TODO: check which .blogme files still use this.
---
--- See: (find-es "lua5" "ELispH")
---      (find-es "lua5" "ELispH-tests")
--- An ELispH object holds data that can generate a "help url" and
--- a "target url". For example:
---
---   eh = ELispH({intro="eev-quick", target="index.html", anchor="eev"})
---   eh:gethelp()   --> "eev-intros/find-eev-quick-intro.html"
---   eh:gettarget() --> "index.html#eev"
---
--- The :sexphtml(...) method connects this to SexpSkel.
---
-ELispH = Class {
-  type    = "ELispH",
-  __tostring = function (eh) return mytabletostring(eh) end,
-  __index = {
-    gethelp = function (eh)
-        if eh.intro then
-          local stem,section = eh.intro:match("^(.-)#(.*)")
-          if section then return introhtml(stem, section) end
-          return introhtml(eh.intro)
-        end
-	return eh.help
-      end,
-    gettarget = function (eh)
-        return eh.target and (eh.target .. (eh.anchor and "#"..eh.anchor or ""))
-      end,
-    sexphtml = function (eh, hzer, a, head, b, qp)
-        hzer = hzer or id
-        local help   = eh:gethelp()
-        local target = eh:gettarget()
-        return hzer(a) .. HREF1(help,   hzer(head)) ..
-               hzer(b) .. HREF1(target, hzer(qp))
-      end,
-    --
-    test = function (eh)
-        local outt = {help=eh:gethelp(), target=eh:gettarget()}
-        return tostring(eh) .. " ->\n" .. mytabletostring(outt)
-      end,
-  },
-}
-
-
--- «ELispHF» (to ".ELispHF")
--- Superseded by sandwiches:
---   (find-blogme3file "sandwiches.lua")
--- TODO: check which .blogme files still use this.
---
--- (find-es "lua5" "ELispHF")
--- (find-es "lua5" "ELispHF-tests")
--- An ELispHF object holds an "elisp hyperlink function", that when
--- called produces an ElispH object.
---
-ELispHF = Class {
-  type    = "ELispHF",
-  newangg = function (head, d, suffix)
-      return ELispHF {head=head, d=d, suffix=suffix, f="angg"}
-    end,
-  newintro = function (head)
-      return ELispHF {head=head, f="intro"}
-    end,
-  newnode = function (head, c, manual)
-      return ELispHF {head=head, c=c, manual=manual, f="node"}
-    end,
-  newyoutube = function (head, hash)
-      return ELispHF {head=head, hash=hash, f="youtube"}
-    end,
-  __tostring = function (ehf) return mytabletostring(ehf) end,
-  __call = function (ehf, ...) return ehf[ehf.f](ehf, ...) end,
-  __index = {
-    angg = function (ehf, a, b, c)
-        local target = suffixing(ehf.d..(a or ""), ehf.suffix, b)
-        return ELispH {intro="eev-quick#9", target=target}
-      end,
-    intro = function (ehf, a)
-        local ei = EevIntro.fromheadposspec(ehf.head, a)
-        return ELispH {intro=ei.stem, target=ei:url()}
-        -- return ELispH {intro=ei:short(), target=ei:url()}
-      end,
-    node = function (ehf, a)
-        local manual, section = ehf.manual, a
-        local target = ELispInfo{}:mstohtml(manual, section)
-        return ELispH {intro="eev-quick#9.2", target=target}
-      end,
-    youtube = function (ehf, a)
-        local hash, time = ehf.hash, a
-        local target = youtube_make_url(hash, time)
-        return ELispH {intro="audiovideo#4.3", target=target}
-      end,
-    codevideo = function (ehf, c, urlorfnameorhash)
-        if c and urlorfnameorhash then code_video(c, urlorfnameorhash) end
-        return ELispH {intro="audiovideo#4.3"}
-      end,
-  },
-}
-
-_EHF = VerticalTable {}
-
-code_c_d_angg = function (c, d, suffix)
-    local find_c     = "find-"..c
-    local find_cfile = "find-"..c.."file"
-    _EHF[find_c    ] = ELispHF.newangg(find_c, d, suffix or ".html")
-    _EHF[find_cfile] = ELispHF.newangg(find_c, d, ".html")
-  end
-
--- (find-blogme3 "angglisp.lua" "code_c_m_b_s")
--- (find-angg "LUA/lua50init.lua" "ELispHF")
--- (find-es "blogme" "code_c_m_b")
-infomanual_basedir = VerticalTable {}
-
-code_c_m_b = function (c, manual, basedir)
-    infomanual_basedir[manual] = basedir
-    local find_cnode = "find-"..c.."node"
-    _EHF[find_cnode] = ELispHF.newnode(find_cnode, c, manual)
-  end
-
--- «code_video»  (to ".code_video")
--- Superseded by sandwiches:
---   (find-blogme3file "sandwiches.lua")
--- TODO: check which .blogme files still use this.
---
--- Run this to make blogme3 process `(code-video "c" "fname")' sexps:
---   _EHF["code-video"] = ELispHF {f="codevideo"}
---
-code_video = function (c, urlorfnameorhash)
-    local find_c = "find-"..c
-    local hash = to_youtube_hash(urlorfnameorhash)
-    _EHF[find_c] = ELispHF.newyoutube(find_c, hash)
-  end
-
-
-
-
-
-
--- «getsexp» (to ".getsexp")
--- Superseded by sandwiches:
---   (find-blogme3file "sandwiches.lua")
--- TODO: check which .blogme files still use this.
---
--- New version: (find-angg "LUA/SexpAtEol1.lua" "SexpAtEol-tests")
--- (find-es "lua5" "getsexp")
--- (find-blogme3 "sexp.lua" "getsexp")
--- Version: 2019jan08.
--- A low-level function that splits a line into a sexp, a skel, and other stuff.
--- If    str  = 'Hello  (find-xpdfpage "~/LATEX/foo.pdf" (+ 2 3))'
--- then  sexp =        '(find-xpdfpage "~/LATEX/foo.pdf" (+ 2 3))',
---       skel =        '(find-xpdfpage "_______________" (_____))',
---       head =         'find-xpdfpage',
---       left = 'Hello '.
-getsexp = function (str)
-    if str:sub(-1) ~= ")" then return end
-    local rep = string.rep
-    local simpq = function (s) return '"'..rep("_", #s-2)..'"' end  -- simplify '"'s
-    local simpp = function (s) return '('..rep("_", #s-2)..')' end  -- simplify parens
-    local leks = str:gsub("\\.", "__"):reverse():gsub('"[^"]*"', simpq):match("^%b)(")
-    if not leks then return end
-    local skel = leks:reverse()
-    local sexp = str:sub(-#skel)
-    local head = sexp:match("^%(([^ ()\"]+)")
-    local skel = "(" .. skel:sub(2):gsub("%b()", simpp)
-    local left = str:sub(1, -1-#skel)
-    return sexp, head, skel, left
-  end
-
--- «SexpSkel» (to ".SexpSkel")
--- (find-es "lua5" "SexpSkel")
--- (find-es "lua5" "SexpSkel-test")
--- A user-friendly class based on getsexp with a nice printing function.
-SexpSkel = Class {
-  type    = "SexpSkel",
-  fromline = function (line)
-      local str,right = line:match("^(.-%))([%s]*)$")
-      if not str then return SexpSkel {line=line} end
-      local sexp,head,skel,left = getsexp(str)
-      if not sexp then return SexpSkel {line=line} end
-      return SexpSkel {line=line, left=left, sexp=sexp, right=right,
-                       skel=skel, head=head}
-    end,
-  __tostring = function (ss)
-      if not ss.sexp then return ss.line.."\n[no sexp]" end
-      local spacify = function (s, c) return string.rep(c or " ", #s) end
-      local left0  = spacify(ss.left)
-      local right0 = spacify(ss.right, ".")
-      return ss.line                .."\n"..
-             left0..ss.sexp..right0 .."\n"..
-             left0..ss.skel         .."\n"..
-             left0.." "..ss.head
-    end,
-  __index = {
-    splitsexp = function (ss)
-        local sexpmid = ss.sexp:sub(2, -2)   -- without the '(' and the ')'
-        local skelmid = ss.skel:sub(2, -2)   -- without the '(' and the ')'
-        local A = {}
-        local f = function (p0, p1)                 -- positions from skelmid
-            table.insert(A, sexpmid:sub(p0, p1-1))  -- substring from sexpmid
-            -- PP(sexpmid:sub(p0, p1-1), skelmid:sub(p0, p1-1))
-          end
-        skelmid:gsub("()[^%s]+()", f)
-        return A
-      end,
-    parsestrargs = function (ss)
-        local A = ss:splitsexp()
-        local f = function (str) return str and str:match("^\"(.*)\"$") end
-        return f(A[2]), f(A[3]), f(A[4])
-      end,
-    parseq = function (ss)
-        local headpat = "("..string.rep(".", #ss.head)..")"
-        local qppat   = "(\"?%))"   -- optional last quote, closing parenthesis
-        local a,head,b,qp  = ss.sexp:match("^(.)"..headpat.."(.-)"..qppat.."$")
-        -- print(table.concat({a,head,b,qp}, "|"))
-        return a,head,b,qp
-      end,
-    --
-    -- (find-es "lua5" "SexpSkel")
-    -- Interface with ELispH and ELispHF:
-    ehtosexphtml = function (ss, eh, hzer)
-        return eh:sexphtml(hzer, ss:parseq())
-      end,
-    ehftoeh = function (ss, ehf)
-        return ehf(ss:parsestrargs()) end,
-    toehf = function (ss)
-        return _EHF[ss.head] end,
-    toeh = function (ss)
-        local ehf = ss:toehf(); return ehf and ss:ehftoeh(ehf)
-      end,
-    totarget = function (ss)
-        local eh = ss:toeh(); return eh and eh:gettarget()
-      end,
-    tohelp = function (ss)
-        local eh = ss:toeh(); return eh and eh:gethelp()
-      end,
-    tosexphtml = function (ss, hzer)
-        local eh = ss:toeh(); return eh and ss:ehtosexphtml(eh, hzer)
-      end,
-  },
-}
-
-
-
--- «ELispInfo» (to ".ELispInfo")
--- (find-es "lua5"  "ELispInfo")
--- (find-blogme3 "sexp.lua" "find-xxxnodes")
--- Superseded by sandwiches:
---   (find-blogme3file "sandwiches.lua")
--- TODO: check which .blogme files still use this.
---
-ELispInfo = Class {
-  type = "ELispInfo",
-  new  = function (c, manual, basedir)
-      infomanual_basedir[manual] = basedir
-      return ELispInfo {c=c, manual=manual}
-    end,
-  __index = {
-    -- convert [s]ection name to [h]tml
-    shre    = "([-'/ &])",
-    shtable = {["-"] = "_002d", ["'"] = "_0027", ["/"] = "_002f",
-               [" "] = "-",     ["&"] = "-"},
-    shexpand = function (eli, section)
-        return section:gsub("%s+", " "):gsub(eli.shre, eli.shtable)
-      end,
-    --
-    -- convert a pair (manual, section) to html
-    mstohtml = function (eli, manual, section)
-        if not manual or not section then return end
-        local basedir = infomanual_basedir[manual]
-        if not basedir then return end
-        local sectionh = eli:shexpand(section)
-        return basedir..sectionh..".html"
-      end,
-    -- a "nodename" is a string like "(libc)I/O Overview"
-    nodenametohtml = function (eli, nodename)
-        if not nodename then return end
-        local manual, section = string.match(nodename, "^%(([^()]+)%)(.*)$")
-        return eli:mstohtml(manual, section)
-      end,
-    --
-    -- -- convert a section name to html
-    -- stohtml = function (eli, section)
-    --     return eli:mstohtml(eli.manual, section)
-    --   end,
-    -- -- convert a (manual, section) pair or a section to an ELispH
-    -- mstoeh = function (eli, manual, section)
-    --     return ELispH {intro="eev-quick#3", target=eli:mstohtml(manual, section)}
-    --   end,
-    -- stoeh = function (eli, section)
-    --     return ELispH {intro="eev-quick#9.2", target=eli:stohtml(section)}
-    --   end,
-    --
-  },
-}
-
-
-
-
--- _E = {}
--- _E["to"] = ElispHF {intro="anchors", calctarget=calctarget_to}
--- _E["find-angg"] = ElispHF {intro="anchors", d=""}
-
--- «getsexpskel» (to ".getsexpskel")
--- Olbsolete.
--- Algorithm and tests: (find-es "lua5" "getsexpskel")
---
--- getsexpskel = function (str)
---     if str:sub(-1) ~= ")" then return end
---     local f = function (s) return '"'..string.rep("_", #s-2)..'"' end
---     local g = function (s) return ')'..string.rep("_", #s-2)..'(' end
---     local str2 = str:gsub("\\.", "__")      -- backslash+c -> __
---     local str3 = str2:reverse()
---     local str4 = str3:gsub('"[^"]*"', f)
---     local skel1 = str4:match("%b)(");    if not skel1 then return end
---     local skel2 = skel1:sub(2, -2):gsub("%b)(", g)
---     local skel3 = skel2:reverse()
---     return skel3
---   end
-
--- «SexpLine» (to ".SexpLine")
--- Obsolete. See: (find-es "lua5" "SexpLine")
--- This was intended to replace some parts of: (find-blogme3 "escripts.lua")
---
--- SexpLine = Class {
---   type = "SexpLine",
---   from = function (src)
---       return SexpLine {src=src, skel=getsexpskel(src)}
---     end,
---   __tostring = function (sl) return mytabletostring(sl) end,
---   __index = {
---     skelf = function (sl) return sl.skel:match"^(%S+)" end,
---     split = function (sl)
---         local f       = sl:skelf()
---         local len     = #sl.src
---         local lensexp = #sl.skel + 2
---         local lena    = len - lensexp
---         local lenb    = 1
---         local lenc    = #f
---         local lene    = (sl.src:sub(-2, -2) == "\"") and 2 or 1
---         local lend    = len - lena - lenb - lenc - lene
---         sl.a = sl.src:sub(1, lena)
---         sl.b = "("
---         sl.c = f
---         sl.d = sl.src:sub(lena + lenb + lenc + 1, lena + lenb + lenc + lend)
---         sl.e = sl.src:sub(-lene)
---         local p1, p2 = sl.skel:match"^%S+%s+()%S+()"
---         if p1 then
---           local offset = lena + 1
---           sl.arg1 = sl.src:sub(offset + p1, offset + p2):match"^\"(.*)\"$"
---         end
---         return sl
---       end,
---     splitt = function (sl)    -- for tests
---         return sl.a.."|"..sl.b.."|"..sl.c.."|"..sl.d.."|"..sl.e
---       end,
---     splitsexp = function (sl)
---         sl.nth = {}
---         for p1,p2 in sl.skel:gmatch("()%S+()") do
---           local b, e = #sl.a + 1 + p1, #sl.a + p2
---           local raw = sl.src:sub(b, e)
---           local str = raw:match"^\"(.*)\"$"
---           table.insert(sl.nth, {b=b, e=e, raw=raw, str=str})
---         end
---         return sl
---       end,
---     n      = function (sl)    return #sl.nth end,
---     rawarg = function (sl, n) return (sl.nth[n] or {}).raw end,
---     arg    = function (sl, n) return (sl.nth[n] or {}).str end,
---     --
---     q = function (sl, body) return body end,
---     r = function (sl, url, body)
---         return url and format('<a href="%s">%s</a>', url, body) or body
---       end,
---     sethtml = function (sl)
---         sl.f        = sl.skel and sl:skelf()
---         sl.ef       = sl.f and _E[sl.f]
---         if not sl.ef then
---           sl.html   = sl:q(sl.src)
---         else
---           sl:split()
---           sl:splitsexp()
---           sl.help     = sl.ef:calchelp()
---           sl.target   = sl.ef:calctarget(sl:arg(2), sl:arg(3))
---           sl.sexphtml = sl.b..
---                         sl:r(sl.help, sl.c)..
---                         sl:q(sl.d)..
---                         sl:r(sl.target, sl.e)
---           sl.html     = sl:q(sl.a) .. sl.sexphtml
---         end
---         return sl
---       end,
---   },
--- }
+-- Moved to:
+-- (find-blogme3 "cruft-jan2024.lua" "EevIntro")
+-- (find-blogme3 "cruft-jan2024.lua" "youtube_make_url")
+-- (find-blogme3 "cruft-jan2024.lua" "youtube_split")
+-- (find-blogme3 "cruft-jan2024.lua" "getsexp")
+-- (find-blogme3 "cruft-jan2024.lua" "ELispHF")
+-- (find-blogme3 "cruft-jan2024.lua" "SexpSkel")
+-- (find-blogme3 "cruft-jan2024.lua" "ELispH")
+-- (find-blogme3 "cruft-jan2024.lua" "Sexp")
+-- (find-blogme3 "cruft-jan2024.lua" "to_youtube_hash")
+-- (find-blogme3 "cruft-jan2024.lua" "url_split")
+-- (find-blogme3 "cruft-jan2024.lua" "Blogme")
+-- (find-blogme3 "cruft-jan2024.lua" "code_video")
+-- (find-blogme3 "cruft-jan2024.lua" "ELispInfo")
+-- (find-blogme3 "cruft-jan2024.lua" "getsexpskel")
+-- (find-blogme3 "cruft-jan2024.lua" "SexpLine")
 
 
 

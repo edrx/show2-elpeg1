@@ -168,13 +168,42 @@ dofile "Repl3.lua"
 run_repl  = function () r = Repl.new(); r:repl() end
 stop_repl = function () r.STOP = "please" end
 run_repl()
+
 print(2+
  3+
  4)
+
 print(2+
- 3!
+ 3!           -- aborts with a syntax error
+
 print(2+
- nil)
+ nil)         -- shows a traceback. Bad frames: 14,13,5.
+
+= ptb
+-------------------------
+= ptb[5]      -- fix this
+= ptb[5]:v()
+= ptb[5].short_src
+= ptb[5].short_src:sub(10,-3)
+= "string "..ptb[5].short_src:sub(10,-3)
+
+-- (find-angg "LUA/PrintFunction1.lua" "PrintFunction" "_main0")
+
+PrintFunction.__index._shortsrc = function (pf)
+    if not pf.short_src then return end
+    if pf.source:match"^@" then return ee_shorten(pf.source:sub(2)) end
+    if pf.source == "=stdin" then return "stdin" end
+    if pf.short_src:match"^%[string" then return "string "..pf.short_src:sub(10,-3) end
+    return "Bad source: "..pf.source
+  end
+
+= ptb
+= ptb[13]      -- fix this
+= ptb[14]      -- fix this
+--------------------------
+= ptb[13]:v()
+= ptb[14]:v()
+
 stop_repl()
 
 --]]

@@ -3,7 +3,7 @@
 --   http://anggtwu.net/LUA/ELpeg1.lua
 --          (find-angg "LUA/ELpeg1.lua")
 -- Author: Eduardo Ochs <eduardoochs@gmail.com>
--- Version: 2023dec16
+-- Version: 20240122
 --
 -- This file implements a way to build lpeg grammars incrementally
 -- using REPLs. My presentation at the EmacsConf2023 was partly about
@@ -386,7 +386,12 @@ Gram = Class {
         }
       end,
     mt_VAST = function (gr) return {
-          __newindex = function (v,name,pat) gr:set(name, Cast(name,pat)) end,
+          __newindex = function (v,name,pat)
+              -- If gr.be is true the modify pat to make it
+              -- save beginpos and endpos in .b and .e
+              if gr.be then pat = Cp():Cg"b" * pat * Cp():Cg"e" end
+              gr:set(name, Cast(name,pat))
+            end,
         }
       end,
     mt_VEXPECT = function (gr) return {
@@ -471,7 +476,7 @@ V.div   = assocl(V.pow,   C"/")
 V.sub   = assocl(V.div,   C"-")
 V.expr  = V.sub                               grcm("expr", "1^2^3 - 4/5/(6-7)")
 
-V.basic  = V.paren + V.N                    
+V. basic = V.paren + V.N                    
 V .paren =               "("*_*V.expr*_*")"   grcm("expr", "1^2^3 - 4/5/(6-7)")
 VA.paren =               "("*_*V.expr*_*")"   grcm("expr", "1^2^3 - 4/5/(6-7)")
 V .paren = Cast("Paren", "("*_*V.expr*_*")")  grcm("expr", "1^2^3 - 4/5/(6-7)")
@@ -481,6 +486,30 @@ V .paren = Cast(nil,     "("*_*V.expr*_*")")  grcm("expr", "1^2^3 - 4/5/(6-7)")
 V .paren =               "("*_*V.expr*_*")"   grcm("expr", "1^2^3 - 4/5/(6-7")
 V .paren =               "("*_*V.expr*_*PE")" grcm("expr", "1^2^3 - 4/5/(6-7")
 V .paren =               "("*_*V.expr*_*PE")" grcm("expr", "1^2^3 - 4/5/(6-7)")
+
+--]]
+
+--[[
+ (eepitch-lua51)
+ (eepitch-kill)
+ (eepitch-lua51)
+dofile "ELpeg1.lua"
+gr,V,VA,VE,PE = Gram.new()
+
+VA.one = C(1)
+VA.two = V.one * V.one
+  o = gr:cm0("two", "xyz")
+= o
+PPV(o)
+
+gr.be = true
+-- Gram.__index.be = true
+
+VA.one = C(1)
+VA.two = V.one * V.one
+  o = gr:cm0("two", "xyz")
+= o
+PPV(o)
 
 --]]
 

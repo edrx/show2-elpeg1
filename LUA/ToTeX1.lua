@@ -218,7 +218,7 @@ tt5         = tt0:witho(o5)
 = tt3:replace("_<tostring(tt:getn(2))>_")
 = tt3:replace("_<rawtostring(tt)>_")
 = tt3:replace("_<:2+3>_")
-= tt3:replace("_<:2+3+>_")
+= tt3:replace("_<:2+3+>_")        -- err
 = tt3:replace("_<:print(2+3)>_")
 
 gm  = function (o) return getmetatable(o)         end
@@ -231,8 +231,8 @@ PPV(gmi(tt3))
 = type(PrintFunction.tostring(print))
 
 = print
-setmetatable(print, PrintFunction.fmetatable())
-setmetatable({}, PrintFunction.fmetatable())
+setmetatable(print, PrintFunction.fmetatable())  -- broken
+setmetatable({}, PrintFunction.fmetatable())     -- broken
 
 
 
