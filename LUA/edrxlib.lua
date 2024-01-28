@@ -2663,7 +2663,7 @@ unixnewlines = function (bigstr)
 -- 6) in some tests I need to make Path.addLUAtopath() a no-op
 -- 7) in show2-elpeg1 Path.addLUAtopath() needs to be a no-op
 -- 8) in show2-elpeg1 the redefinition below should be uncommented
---Path.addLUAtopath = function () end
+Path.addLUAtopath = function () end
 
 
 
